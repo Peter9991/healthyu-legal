@@ -2,62 +2,951 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>HealthyU Legal</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HealthyU</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <style>
-    body {
-      font-family: sans-serif;
-      margin: 20px;
-      line-height: 1.6;
-      background-color: #f5f5f5;
-    }
-    .container {
-      max-width: 800px;
-      margin: auto;
-      padding: 40px 20px;
-      background-color: #fff;
-      border-radius: 12px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-    h1 {
-      color: #2e7d32;
-      text-align: center;
-      margin-bottom: 30px;
-    }
-    ul {
-      list-style-type: none;
+    html, body {
+      height: 100%;
+      margin: 0;
       padding: 0;
+      scroll-behavior: smooth;
     }
-    li {
-      margin-bottom: 12px;
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(120deg, #b2ff59 0%, #eaffd0 100%);
+      color: #222;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      height: 100%;
     }
-    a {
-      text-decoration: none;
-      color: #007bff;
-      font-size: 1.1em;
+    .snap-container {
+      scroll-snap-type: y mandatory;
+      overflow-y: scroll;
+      height: 100vh;
+    }
+    .snap-section {
+      scroll-snap-align: start;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      background: rgba(255, 255, 255, 0.95);
+      transition: background 0.5s;
+    }
+    .snap-section.hero-snap {
+      background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%);
+    }
+    .snap-section:nth-child(even) {
+      background: rgba(255, 255, 255, 0.98);
+    }
+    .snap-section .floating-emoji {
+      position: absolute;
+      font-size: 2.5rem;
+      opacity: 0.13;
+      pointer-events: none;
+      z-index: 1;
+      animation: floatEmoji 6s infinite linear;
+    }
+    .snap-section .floating-emoji2 {
+      position: absolute;
+      font-size: 2.5rem;
+      opacity: 0.13;
+      pointer-events: none;
+      z-index: 1;
+      animation: floatEmoji2 7s infinite linear;
+    }
+    @keyframes floatEmoji {
+      0% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-30px) rotate(10deg); }
+      100% { transform: translateY(0) rotate(0deg); }
+    }
+    @keyframes floatEmoji2 {
+      0% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(30px) rotate(-10deg); }
+      100% { transform: translateY(0) rotate(0deg); }
+    }
+    .hero {
+      min-height: 100vh;
+      width: 100vw;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(120deg, #388e3c 0%, #42a5f5 100%);
+      padding: 0 0 0 0;
+      box-sizing: border-box;
+      position: relative;
+    }
+    .hero-inner {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      max-width: 1400px;
+      gap: 60px;
+      padding: 0 5vw;
+    }
+    .hero-content-block {
+      max-width: 600px;
+      z-index: 2;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: center;
+    }
+    .hero-logo {
+      width: 320px;
+      max-width: 90vw;
+      height: auto;
+      margin-bottom: 48px;
+      margin-top: 32px;
       display: block;
-      padding: 12px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      background-color: #fafafa;
-      transition: all 0.3s ease;
+      animation: floatLogo 3s ease-in-out infinite;
+      z-index: 2;
     }
-    a:hover {
-      background-color: #e9ecef;
-      color: #0056b3;
+    @keyframes floatLogo {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-18px); }
+    }
+    .hero-title {
+      font-size: 3.5rem;
+      font-weight: 900;
+      margin-bottom: 18px;
+      letter-spacing: 1.2px;
+      color: #fff;
+      animation: fadeInUp 1s;
+      line-height: 1.1;
+      text-shadow: 0 2px 12px rgba(46,125,50,0.08);
+    }
+    .hero-title .highlight {
+      color: #b2ff59;
+    }
+    .hero-desc {
+      font-size: 1.35rem;
+      color: #e3f2fd;
+      margin-bottom: 36px;
+      animation: fadeInUp 1.2s;
+      max-width: 500px;
+      font-weight: 500;
+    }
+    .store-buttons {
+      display: flex;
+      gap: 18px;
+      margin-top: 32px;
+      margin-bottom: 0;
+    }
+    .store-btn {
+      display: inline-block;
+      height: 54px;
+      transition: transform 0.2s;
+    }
+    .store-btn:hover {
+      transform: scale(1.08);
+    }
+    .hero-poster-img {
+      width: 400px;
+      max-width: 90vw;
+      height: auto;
+      border-radius: 40px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.18);
+      background: #fff;
+      margin: 0;
+      animation: fadeInUp 1.2s;
+      border: 8px solid #fff;
+      object-fit: cover;
+      z-index: 2;
+      display: block;
+    }
+    /* Sectioned layout */
+    .sectioned {
+      width: 100vw;
+      max-width: none;
+      padding: 0;
+      margin: 0;
+      background: transparent;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    .section-block-split {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 480px;
+      padding: 80px 5vw;
+      gap: 60px;
+      width: 100vw;
+      max-width: none;
+      margin: 0;
+      opacity: 1;
+      transform: none;
+      background: rgba(255, 255, 255, 0.95);
+    }
+    .section-block-split.reverse {
+      flex-direction: row-reverse;
+    }
+    .section-img {
+      width: 400px;
+      max-width: 100%;
+      border-radius: 32px;
+      box-shadow: 0 8px 32px rgba(33,150,243,0.13), 0 2px 8px rgba(46,125,50,0.13);
+      background: #fff;
+      object-fit: cover;
+      margin: 0 0 0 0;
+      transition: transform 0.3s, box-shadow 0.3s;
+      animation: floatImg 3s infinite alternate;
+      position: relative;
+    }
+    .section-img:hover {
+      transform: scale(1.04) rotate(-2deg);
+      box-shadow: 0 16px 48px rgba(33,150,243,0.18), 0 4px 16px rgba(46,125,50,0.18);
+    }
+    @keyframes floatImg {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-10px); }
+    }
+    .section-text {
+      max-width: 480px;
+      padding: 0 24px;
+      text-align: left;
+    }
+    .section-title-split {
+      font-size: 2.1rem;
+      font-weight: 800;
+      color: #2e7d32;
+      margin-bottom: 18px;
+      letter-spacing: 1px;
+    }
+    .section-desc-split {
+      font-size: 1.15rem;
+      color: #444;
+      line-height: 1.7;
+      margin-bottom: 0;
+    }
+    /* Fitness calculator images side by side */
+    #fitness-section .section-img {
+      display: flex;
+      flex-direction: row;
+      gap: 32px;
+      justify-content: center;
+      align-items: center;
+      background: none;
+      box-shadow: none;
+      width: auto;
+      max-width: 100vw;
+    }
+    #fitness-section .section-img img {
+      width: 220px;
+      max-width: 40vw;
+      min-width: 120px;
+      border-radius: 24px;
+      box-shadow: 0 8px 32px rgba(33,150,243,0.13), 0 2px 8px rgba(46,125,50,0.13);
+      background: #fff;
+      margin: 0;
+      transition: transform 0.3s, box-shadow 0.3s;
+      animation: floatImg 3s infinite alternate;
+    }
+    #fitness-section .section-img img:hover {
+      transform: scale(1.08) rotate(2deg);
+      box-shadow: 0 16px 48px rgba(33,150,243,0.18), 0 4px 16px rgba(46,125,50,0.18);
+    }
+    @media (max-width: 900px) {
+      #fitness-section .section-img {
+        flex-direction: column;
+        gap: 18px;
+      }
+      #fitness-section .section-img img {
+        width: 90vw;
+        max-width: 340px;
+      }
+    }
+    /* Policy buttons section */
+    .policy-section {
+      width: 100vw;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 80px 0 60px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .policy-title {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: #2e7d32;
+      margin-bottom: 32px;
+      letter-spacing: 1px;
+      text-align: center;
+    }
+    .policy-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 28px;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      max-width: 900px;
+    }
+    .policy-btn {
+      background: #fff;
+      border: 2px solid #2e7d32;
+      color: #2e7d32;
+      font-size: 1.2rem;
+      font-weight: 700;
+      border-radius: 18px;
+      padding: 22px 38px;
+      text-decoration: none;
+      box-shadow: 0 4px 16px rgba(33,150,243,0.10);
+      transition: background 0.2s, color 0.2s, box-shadow 0.2s, transform 0.2s;
+      margin: 0;
+      outline: none;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+    }
+    .policy-btn:hover, .policy-btn:focus {
+      background: #b2ff59;
+      color: #222;
+      box-shadow: 0 8px 32px rgba(33,150,243,0.18), 0 4px 16px rgba(46,125,50,0.18);
+      transform: scale(1.06) rotate(-2deg);
+    }
+    .policy-btn:active {
+      background: #e3f2fd;
+      color: #2e7d32;
+    }
+    /* Playful floating emoji */
+    .floating-emoji {
+      position: absolute;
+      font-size: 2.5rem;
+      opacity: 0.13;
+      pointer-events: none;
+      z-index: 1;
+      animation: floatEmoji 6s infinite linear;
+    }
+    .floating-emoji2 {
+      position: absolute;
+      font-size: 2.5rem;
+      opacity: 0.13;
+      pointer-events: none;
+      z-index: 1;
+      animation: floatEmoji2 7s infinite linear;
+    }
+    @keyframes floatEmoji {
+      0% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-30px) rotate(10deg); }
+      100% { transform: translateY(0) rotate(0deg); }
+    }
+    @keyframes floatEmoji2 {
+      0% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(30px) rotate(-10deg); }
+      100% { transform: translateY(0) rotate(0deg); }
+    }
+    .hero {
+      min-height: 100vh;
+      width: 100vw;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(120deg, #388e3c 0%, #42a5f5 100%);
+      padding: 0 0 0 0;
+      box-sizing: border-box;
+      position: relative;
+    }
+    .hero-inner {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      max-width: 1400px;
+      gap: 60px;
+      padding: 0 5vw;
+    }
+    .hero-content-block {
+      max-width: 600px;
+      z-index: 2;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: center;
+    }
+    .hero-logo {
+      width: 320px;
+      max-width: 90vw;
+      height: auto;
+      margin-bottom: 48px;
+      margin-top: 32px;
+      display: block;
+      animation: floatLogo 3s ease-in-out infinite;
+      z-index: 2;
+    }
+    @keyframes floatLogo {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-18px); }
+    }
+    .hero-title {
+      font-size: 3.5rem;
+      font-weight: 900;
+      margin-bottom: 18px;
+      letter-spacing: 1.2px;
+      color: #fff;
+      animation: fadeInUp 1s;
+      line-height: 1.1;
+      text-shadow: 0 2px 12px rgba(46,125,50,0.08);
+    }
+    .hero-title .highlight {
+      color: #b2ff59;
+    }
+    .hero-desc {
+      font-size: 1.35rem;
+      color: #e3f2fd;
+      margin-bottom: 36px;
+      animation: fadeInUp 1.2s;
+      max-width: 500px;
+      font-weight: 500;
+    }
+    .store-buttons {
+      display: flex;
+      gap: 18px;
+      margin-top: 32px;
+      margin-bottom: 0;
+    }
+    .store-btn {
+      display: inline-block;
+      height: 54px;
+      transition: transform 0.2s;
+    }
+    .store-btn:hover {
+      transform: scale(1.08);
+    }
+    .hero-poster-img {
+      width: 400px;
+      max-width: 90vw;
+      height: auto;
+      border-radius: 40px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.18);
+      background: #fff;
+      margin: 0;
+      animation: fadeInUp 1.2s;
+      border: 8px solid #fff;
+      object-fit: cover;
+      z-index: 2;
+      display: block;
+    }
+    /* Sectioned layout */
+    .sectioned {
+      width: 100vw;
+      max-width: none;
+      padding: 0;
+      margin: 0;
+      background: transparent;
+    }
+    .section-block-split {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 480px;
+      padding: 80px 5vw;
+      gap: 60px;
+      width: 100vw;
+      max-width: none;
+      margin: 0;
+      opacity: 1;
+      transform: none;
+    }
+    .section-block-split.reverse {
+      flex-direction: row-reverse;
+    }
+    .section-img {
+      width: 340px;
+      max-width: 90vw;
+      border-radius: 32px;
+      box-shadow: 0 8px 32px rgba(33,150,243,0.10), 0 2px 8px rgba(46,125,50,0.10);
+      background: #fff;
+      object-fit: cover;
+      margin: 0 0 0 0;
+      animation: fadeInUp 1.2s;
+    }
+    .section-text {
+      max-width: 480px;
+      padding: 0 24px;
+      text-align: left;
+    }
+    .section-title-split {
+      font-size: 2.1rem;
+      font-weight: 800;
+      color: #2e7d32;
+      margin-bottom: 18px;
+      letter-spacing: 1px;
+    }
+    .section-desc-split {
+      font-size: 1.15rem;
+      color: #444;
+      line-height: 1.7;
+      margin-bottom: 0;
+    }
+    @media (max-width: 900px) {
+      .section-block-split, .section-block-split.reverse {
+        flex-direction: column !important;
+        gap: 32px;
+        min-height: unset;
+        padding: 40px 0;
+      }
+      .section-img, .hero-poster-img {
+        width: 90vw;
+        max-width: 340px;
+      }
+      .section-text {
+        padding: 0 10px;
+      }
+    }
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+    section {
+      margin: 100px 0 0 0;
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.8s cubic-bezier(.68,-0.55,.27,1.55), transform 0.8s cubic-bezier(.68,-0.55,.27,1.55);
+    }
+    section.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .section-title {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: #2e7d32;
+      margin-bottom: 24px;
+      letter-spacing: 1px;
+      text-align: left;
+    }
+    .section-block {
+      background: #fff;
+      border-radius: 24px;
+      box-shadow: 0 8px 32px rgba(33,150,243,0.07), 0 2px 8px rgba(46,125,50,0.07);
+      padding: 40px 32px;
+      margin-bottom: 40px;
+      animation: fadeInUp 1.2s;
+    }
+    .section-block h2 {
+      font-size: 1.5rem;
+      color: #1b5e20;
+      margin-bottom: 12px;
+      font-weight: 700;
+    }
+    .section-block p {
+      font-size: 1.1rem;
+      color: #444;
+      line-height: 1.7;
+      margin-bottom: 0;
+    }
+    /* Portfolio App Showcase */
+    .portfolio-showcase {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 36px;
+      margin-top: 40px;
+      margin-bottom: 40px;
+    }
+    .portfolio-item {
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(33,150,243,0.10), 0 2px 8px rgba(46,125,50,0.10);
+      overflow: hidden;
+      position: relative;
+      transition: transform 0.4s cubic-bezier(.68,-0.55,.27,1.55), box-shadow 0.3s;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      animation: fadeInUp 1.2s;
+      z-index: 1;
+    }
+    .portfolio-item:hover {
+      transform: scale(1.04) translateY(-8px) rotate(-2deg);
+      box-shadow: 0 16px 48px rgba(33,150,243,0.18), 0 4px 16px rgba(46,125,50,0.18);
+      z-index: 2;
+    }
+    .portfolio-img {
+      width: 100%;
+      height: 420px;
+      object-fit: cover;
+      border-radius: 0 0 20px 20px;
+      background: #f4f4f4;
+      transition: filter 0.3s;
+    }
+    .portfolio-caption {
+      font-size: 1.1rem;
+      color: #2e7d32;
+      font-weight: 700;
+      margin: 18px 0 12px 0;
+      text-align: center;
+      letter-spacing: 0.5px;
+      position: relative;
+      z-index: 2;
+    }
+    .portfolio-desc {
+      font-size: 1rem;
+      color: #444;
+      background: rgba(255,255,255,0.97);
+      border-radius: 0 0 20px 20px;
+      padding: 12px 18px 18px 18px;
+      opacity: 0;
+      position: absolute;
+      left: 0; right: 0; bottom: 0;
+      transition: opacity 0.4s, transform 0.4s;
+      transform: translateY(20px);
+      pointer-events: none;
+      z-index: 3;
+      box-shadow: 0 2px 12px rgba(33,150,243,0.07);
+    }
+    .portfolio-item:hover .portfolio-desc {
+        opacity: 1;
+        transform: translateY(0);
+      pointer-events: auto;
+    }
+    .phone-mockup-portfolio {
+      width: 220px;
+      height: 440px;
+      background: #222;
+      border-radius: 40px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.12);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      margin: 0 auto 24px auto;
+    }
+    .phone-mockup-portfolio::before {
+      content: '';
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 8px;
+      background: #444;
+      border-radius: 8px;
+      z-index: 2;
+    }
+    .phone-mockup-img {
+      width: 200px;
+      height: 416px;
+      object-fit: cover;
+      border-radius: 32px;
+      margin-top: 8px;
+      box-shadow: 0 4px 16px rgba(33,150,243,0.10);
+      background: #fff;
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    /* Responsive */
+    @media (max-width: 900px) {
+      .portfolio-showcase {
+        grid-template-columns: 1fr 1fr;
+      }
+      .phone-mockup-portfolio {
+        width: 160px;
+        height: 320px;
+      }
+      .phone-mockup-img {
+        width: 140px;
+        height: 296px;
+      }
+    }
+    @media (max-width: 600px) {
+      .hero-title { font-size: 2.1rem; }
+      .portfolio-showcase { grid-template-columns: 1fr; }
+      .section-title { font-size: 1.3rem; }
+      .section-block { padding: 24px 10px; }
+    }
+    @media (max-width: 1100px) {
+      .hero-inner { flex-direction: column; gap: 32px; padding: 0 2vw; }
+      .hero-content-block { align-items: center; text-align: center; }
+    }
+    @media (max-width: 700px) {
+      .hero-title { font-size: 2.1rem; }
+      .hero-poster-img { width: 90vw; max-width: 340px; }
+    }
+    /* About Section Animations */
+    .about-animated {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 32px;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-top: 32px;
+    }
+    .about-block {
+      flex: 1 1 280px;
+      min-width: 260px;
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 4px 24px rgba(33,150,243,0.07), 0 2px 8px rgba(46,125,50,0.07);
+      padding: 32px 24px 32px 24px;
+      margin-bottom: 0;
+      position: relative;
+      overflow: hidden;
+      animation: fadeInUp 1.2s;
+      transition: box-shadow 0.3s, transform 0.3s;
+    }
+    .about-block:hover {
+      box-shadow: 0 12px 36px rgba(33,150,243,0.13), 0 4px 16px rgba(46,125,50,0.13);
+      transform: translateY(-6px) scale(1.03);
+    }
+    .about-icon {
+        font-size: 2.5rem;
+      color: #4caf50;
+      margin-bottom: 18px;
+      animation: popIcon 1.2s;
+      display: inline-block;
+    }
+    @keyframes popIcon {
+      0% { transform: scale(0.7) rotate(-10deg); opacity: 0; }
+      60% { transform: scale(1.2) rotate(10deg); opacity: 1; }
+      100% { transform: scale(1) rotate(0); opacity: 1; }
+    }
+    .app-preview {
+      padding: 8rem 0;
+      background: transparent;
+      position: relative;
+      overflow: visible;
+    }
+    .app-screenshots {
+      position: relative;
+      height: 80vh;
+      overflow: hidden;
+    }
+    .app-screenshot {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      transform: translateY(50px);
+      transition: all 0.5s ease;
+      pointer-events: none;
+    }
+    .app-screenshot.active {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: all;
+    }
+    .app-screenshot img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>HealthyU Legal Documents</h1>
-    <ul>
-      <li><a href="privacy-policy.html">Privacy Policy</a></li>
-      <li><a href="terms-users.html">Terms & Conditions for Users</a></li>
-      <li><a href="terms-restaurants.html">Terms & Conditions for Restaurants</a></li>
-      <li><a href="data-deletion.html">Data Deletion Policy</a></li>
-      <li><a href="support.html">Support & Contact Us</a></li>
-    </ul>
+  <div class="sectioned">
+    <div class="hero">
+      <div class="hero-inner">
+        <div class="hero-content-block">
+          <img src="healythu.png" alt="HealthyU Logo" class="hero-logo" />
+          <div class="hero-title">Your smart gateway to <span class="highlight">healthy eating</span> in Egypt</div>
+          <div class="hero-desc">Discover calorie-counted, nutritious meals from verified restaurants and home kitchens across Egypt. HealthyU is here to support your goals.</div>
+          <div class="store-buttons">
+            <a href="#" class="store-btn"><img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" alt="Get it on Google Play" height="54"></a>
+            <a href="#" class="store-btn"><img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Download on the App Store" height="54"></a>
+          </div>
+        </div>
+        <img src="poster.jpg" alt="HealthyU App Poster" class="hero-poster-img" onerror="this.onerror=null;this.style.display='none';this.insertAdjacentHTML('afterend', '<div style=\'color:#fff;font-size:1.2rem;margin-top:20px;\'>Poster image not found</div>');" />
+      </div>
+    </div>
+    <div class="section-block-split" id="about-section">
+      <div class="section-img"><img src="healythu.png" alt="HealthyU Logo" style="width:100%;height:auto;border-radius:24px;box-shadow:0 4px 16px rgba(46,125,50,0.10);"></div>
+      <div class="section-text">
+        <div class="section-title-split">About HealthyU</div>
+        <div class="section-desc-split">HealthyU is your trusted destination for healthy meals, connecting users across Egypt with verified restaurants and home kitchens that provide calorie-counted, nutritious dishes. Whether you're eating clean, managing weight, or simply enjoying a better lifestyle, HealthyU is here to support your goals.</div>
+      </div>
+    </div>
+    <div class="section-block-split reverse" id="mission-section">
+      <div class="section-img"><img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Mission Icon" style="width:100%;height:auto;border-radius:24px;box-shadow:0 4px 16px rgba(46,125,50,0.10);background:#fff;"></div>
+      <div class="section-text">
+        <div class="section-title-split">Our Mission</div>
+        <div class="section-desc-split">We aim to revolutionize the food delivery space by making healthy choices accessible, trackable, and rewarding for everyone. Through technology and partnerships, we help Egyptians embrace wellness, one meal at a time.</div>
+      </div>
+    </div>
+    <div class="section-block-split" id="why-section">
+      <div class="section-img"><img src="https://cdn-icons-png.flaticon.com/512/190/190411.png" alt="Magic Icon" style="width:100%;height:auto;border-radius:24px;box-shadow:0 4px 16px rgba(46,125,50,0.10);background:#fff;"></div>
+      <div class="section-text">
+        <div class="section-title-split">Why Choose HealthyU?</div>
+        <div class="section-desc-split">HealthyU empowers you with smart food recommendations, verified providers, and real-time nutrition insights. From AI-powered meal tracking to personalized suggestions, we make healthy eating convenient, affordable, and joyful.</div>
+      </div>
+    </div>
+    <div class="section-block-split" id="home-section">
+      <div class="section-img"><img src="HealthyU%231.jpg" alt="Home Page" style="width:100%;height:auto;border-radius:24px;"></div>
+      <div class="section-text">
+        <div class="section-title-split">Home Page</div>
+        <div class="section-desc-split">The main screen where you can search for healthy restaurants, see your delivery address, and browse featured healthy food providers. Quick access to search and sort options.</div>
+      </div>
+    </div>
+    <div class="section-block-split reverse" id="restaurant-section">
+      <div class="section-img"><img src="HealthyU%232.jpg" alt="Restaurant Page" style="width:100%;height:auto;border-radius:24px;"></div>
+      <div class="section-text">
+        <div class="section-title-split">Restaurant Page</div>
+        <div class="section-desc-split">View a restaurant's profile, see their healthy food menu, packages, ratings, delivery fee, and nutritional details for each meal. Easily switch between meals and packages.</div>
+      </div>
+    </div>
+    <div class="section-block-split" id="order-section">
+      <div class="section-img"><img src="HealthyU%233.jpg" alt="Order in Restaurant" style="width:100%;height:auto;border-radius:24px;"></div>
+      <div class="section-text">
+        <div class="section-title-split">Order in Restaurant</div>
+        <div class="section-desc-split">Select and customize your meal or package from the restaurant's menu. View nutritional details and pricing before adding to your cart.</div>
+      </div>
+    </div>
+    <div class="section-block-split reverse" id="cart-section">
+      <div class="section-img"><img src="HealthyU%234.jpg" alt="Cart Screen" style="width:100%;height:auto;border-radius:24px;"></div>
+      <div class="section-text">
+        <div class="section-title-split">Cart Screen</div>
+        <div class="section-desc-split">Review your selected meals, see the total price, and proceed to checkout. Edit or remove items and view important order disclaimers.</div>
+      </div>
+    </div>
+    <div class="section-block-split" id="fitness-section">
+      <div class="section-img" style="display:flex;gap:24px;flex-wrap:wrap;justify-content:center;align-items:center;">
+        <img src="HealthyU%237.jpg" alt="Fitness Calculator 1" style="width:290px;height:auto;border-radius:24px;">
+        <img src="HealthyU%235.jpg" alt="Fitness Calculator 2" style="width:290px;height:auto;border-radius:24px;">
+      </div>
+      <div class="section-text">
+        <div class="section-title-split">Calculate Your Fitness</div>
+        <div class="section-desc-split">Input your gender, age, height, weight, and meals per day to get personalized meal recommendations. See your calculated daily nutritional goals and breakdowns based on your input. Visualize your daily calories, protein, carbs, and fats for your fitness journey.</div>
+      </div>
+    </div>
+    <div class="section-block-split reverse" id="manual-section">
+      <div class="section-img"><img src="HealthyU%236.jpg" alt="Manual Search" style="width:100%;height:auto;border-radius:24px;"></div>
+      <div class="section-text">
+        <div class="section-title-split">Manual Search</div>
+        <div class="section-desc-split">Find meals that match your specific nutritional requirements. Enter your target calories, protein, carbs, and fats to discover suitable meal options.</div>
+      </div>
+    </div>
   </div>
+  <div class="policy-section">
+    <span class="floating-emoji" style="top:10%;left:5%;">🥗</span>
+    <span class="floating-emoji2" style="bottom:12%;right:7%;">💪</span>
+    <div class="policy-title">Links & Policies</div>
+    <div class="policy-buttons">
+      <a href="privacy-policy.html" class="policy-btn">Privacy Policy</a>
+      <a href="terms-users.html" class="policy-btn">User Terms & Conditions</a>
+      <a href="terms-restaurants.html" class="policy-btn">Restaurant Terms & Conditions</a>
+      <a href="data-deletion.html" class="policy-btn">Data Deletion Policy</a>
+      <a href="support.html" class="policy-btn">Support & Contact</a>
+    </div>
+  </div>
+  <footer style="padding:30px;text-align:center;background:#1de982;color:#14532d;font-size:1rem;box-shadow:0 -2px 16px rgba(46,125,50,0.07);border-top: 2px solid #b2ff59;">
+    &copy; 2025 HealthyU. All rights reserved.
+  </footer>
+  <div id="mascot-logo-wrap" style="position:fixed;bottom:40px;right:40px;z-index:999;display:flex;align-items:center;gap:16px;">
+    <div id="mascot-logo-bg" style="width:74px;height:74px;display:flex;align-items:center;justify-content:center;background:#111;border-radius:50%;box-shadow:0 4px 16px rgba(33,150,243,0.13);">
+      <img id="mascot-logo" src="logo.png" alt="HealthyU Mascot" style="width:54px;height:54px;cursor:grab;user-select:none;transition:transform 0.4s;" />
+    </div>
+  </div>
+  <span id="mascot-label" style="position:fixed;bottom:40px;right:130px;z-index:999;background:#181c1f;color:#fff;font-size:1.1rem;padding:10px 18px;border-radius:18px;box-shadow:0 2px 8px rgba(0,0,0,0.13);font-weight:600;letter-spacing:0.5px;user-select:none;">Drag me!</span>
+  <script>
+    const mascotLogo = document.getElementById('mascot-logo');
+    const mascotLogoBg = document.getElementById('mascot-logo-bg');
+    const mascotWrap = document.getElementById('mascot-logo-wrap');
+    let mascotDrag = false, mascotOffset = {x:0,y:0};
+    mascotLogoBg.addEventListener('mousedown', e => {
+      mascotDrag = true;
+      const rect = mascotWrap.getBoundingClientRect();
+      mascotOffset.x = e.clientX - rect.left;
+      mascotOffset.y = e.clientY - rect.top;
+      mascotLogo.style.cursor = 'grabbing';
+    });
+    document.addEventListener('mousemove', e => {
+      if (mascotDrag) {
+        mascotWrap.style.left = (e.clientX - mascotOffset.x) + 'px';
+        mascotWrap.style.top = (e.clientY - mascotOffset.y) + 'px';
+        mascotWrap.style.right = 'auto';
+        mascotWrap.style.bottom = 'auto';
+        mascotWrap.style.position = 'fixed';
+      }
+    });
+    document.addEventListener('mouseup', () => { mascotDrag = false; mascotLogo.style.cursor = 'grab'; });
+    mascotLogo.addEventListener('click', (e) => {
+      // Spin
+      mascotLogo.style.transition = 'transform 1.5s cubic-bezier(.68,-0.55,.27,1.55)';
+      mascotLogo.style.transform = 'rotate(1440deg) scale(1.15)';
+      setTimeout(()=>{
+        mascotLogo.style.transition = 'transform 0.3s';
+        mascotLogo.style.transform = '';
+      }, 1500);
+      // Zap out nutrition icons and values, scattered randomly
+      const icons = [
+        '⚡','🥦','🍗','🥔','🥚','🥕','🍅','🍎','🥑',
+        '💪','120g','1540kcal','45g','32g','60g protein','carbs','fiber'
+      ];
+      const rect = mascotLogo.getBoundingClientRect();
+      for (let i = 0; i < icons.length; i++) {
+        const zap = document.createElement('span');
+        zap.textContent = icons[i];
+        zap.style.position = 'fixed';
+        zap.style.left = (rect.left + rect.width/2) + 'px';
+        zap.style.top = (rect.top + rect.height/2) + 'px';
+        zap.style.fontSize = (isNaN(icons[i]) && icons[i].length < 4 ? '2rem' : '1.1rem');
+        zap.style.background = 'none';
+        zap.style.color = icons[i].match(/kcal|g|protein|carbs|fat|fiber/) ? '#b2ff59' : '';
+        zap.style.borderRadius = '12px';
+        zap.style.padding = icons[i].match(/kcal|g|protein|carbs|fat|fiber/) ? '2px 8px' : '0';
+        zap.style.pointerEvents = 'none';
+        zap.style.zIndex = 9999;
+        zap.style.transition = 'transform 2.2s cubic-bezier(.68,-0.55,.27,1.55), opacity 2.2s';
+        document.body.appendChild(zap);
+        // Random direction and distance
+        const angle = Math.random() * 2 * Math.PI;
+        const distance = 200 + Math.random() * 600;
+        const x = Math.cos(angle) * distance;
+        const y = Math.sin(angle) * distance;
+        setTimeout(() => {
+          zap.style.transform = `translate(${x}px,${y}px) scale(1.3)`;
+          zap.style.opacity = 0;
+        }, 10);
+        setTimeout(() => zap.remove(), 2300);
+      }
+    });
+    // Card stack effect only for app screenshots section
+    const appScreenshots = Array.from(document.querySelectorAll('.app-screenshot'));
+    function updateActiveScreenshot() {
+      const appPreviewSection = document.querySelector('.app-preview');
+      if (!appPreviewSection) return;
+      const sectionTop = appPreviewSection.offsetTop;
+      const sectionHeight = appPreviewSection.offsetHeight;
+      const scrollY = window.scrollY;
+      if (scrollY >= sectionTop && scrollY < sectionTop + sectionHeight) {
+        const progress = (scrollY - sectionTop) / sectionHeight;
+        const idx = Math.min(
+          Math.floor(progress * appScreenshots.length),
+          appScreenshots.length - 1
+        );
+        appScreenshots.forEach((screenshot, i) => {
+          if (i === idx) {
+            screenshot.classList.add('active');
+          } else {
+            screenshot.classList.remove('active');
+          }
+        });
+      } else {
+        // If not in the section, hide all screenshots
+        appScreenshots.forEach(screenshot => screenshot.classList.remove('active'));
+      }
+    }
+    window.addEventListener('scroll', updateActiveScreenshot);
+    updateActiveScreenshot();
+  </script>
 </body>
 </html>
