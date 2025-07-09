@@ -1,46 +1,54 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Signing you in...</title>
-    <meta charset="utf-8" />
-    <script>
-      // Parse query params
-      function getParams() {
-        const params = {};
-        window.location.search.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m, key, value) {
-          params[key] = decodeURIComponent(value);
-        });
-        return params;
-      }
+<head>
+  <title>Signing you in...</title>
+  <meta charset="utf-8" />
+  <style>
+    body { font-family: sans-serif; text-align: center; margin-top: 20vh; background-color: #f0f2f5; color: #333; }
+    h2 { font-weight: 300; }
+    .spinner { border: 4px solid rgba(0, 0, 0, 0.1); width: 36px; height: 36px; border-radius: 50%; border-left-color: #09f; animation: spin 1s ease infinite; margin: 20px auto; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+  </style>
+  <script>
+    function getParams() {
+      const params = {};
+      // Use location.hash for modern OAuth flows, fallback to location.search
+      const queryString = window.location.search || window.location.hash.substring(1);
+      queryString.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m, key, value) {
+        params[key] = decodeURIComponent(value);
+      });
+      return params;
+    }
 
-      window.onload = function() {
-        const params = getParams();
-        // Compose the App Link (Universal Link) for both platforms
-        // Use your App Link (https) for Android, and optionally your custom scheme for iOS fallback
-        const appLink = `https://healthyu.app/auth-callback.html?userId=${encodeURIComponent(params.userId || '')}&secret=${encodeURIComponent(params.secret || '')}${params.error ? `&error=${encodeURIComponent(params.error)}` : ''}`;
-        // Optionally, you can also try your custom scheme as a fallback
-        const customScheme = `healthyu://auth-callback?userId=${encodeURIComponent(params.userId || '')}&secret=${encodeURIComponent(params.secret || '')}${params.error ? `&error=${encodeURIComponent(params.error)}` : ''}`;
+    window.onload = function() {
+      const params = getParams();
+      const userId = params.userId || '';
+      const secret = params.secret || '';
+      const error = params.error || '';
 
-        // Try to open the app via App Link first
-        window.location.replace(appLink);
+      if (userId && secret) {
+        // Construct the custom scheme URL
+        const customSchemeUrl = `healthyu://auth-callback?userId=${encodeURIComponent(userId)}&secret=${encodeURIComponent(secret)}`;
+        
+        // Redirect to the app
+        window.location.href = customSchemeUrl;
 
-        // Fallback: After a short delay, try the custom scheme (for iOS, or if App Link fails)
-        setTimeout(function() {
-          window.location.replace(customScheme);
-        }, 800);
-
-        // Final fallback: Try to close the tab after a bit longer
+        // Fallback to close the window after a delay, in case redirect fails
         setTimeout(function() {
           window.close();
-        }, 2000);
-      };
-    </script>
-    <style>
-      body { font-family: sans-serif; text-align: center; margin-top: 20vh; }
-    </style>
-  </head>
-  <body>
-    <h2>Signing you in...</h2>
-    <p>If you are not redirected, you can close this page.</p>
-  </body>
+        }, 1500);
+
+      } else if (error) {
+        document.body.innerHTML = '<h2>Login Failed</h2><p>An error occurred. You can close this page.</p>';
+      } else {
+        document.body.innerHTML = '<h2>Invalid Callback</h2><p>Could not find login details. You can close this page.</p>';
+      }
+    };
+  </script>
+</head>
+<body>
+  <div class="spinner"></div>
+  <h2>Signing you in...</h2>
+  <p>If you are not automatically redirected, you can close this page.</p>
+</body>
 </html>
