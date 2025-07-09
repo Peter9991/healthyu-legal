@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.healthyu.app",
+      "sha256_cert_fingerprints": [
+        "3B:66:6A:43:49:AB:76:57:39:C5:75:F8:52:9E:CB:9B:06:FA:26:BA:34:92:6B:F7:B6:B1:B7:2E:18:BF:8C:0E"
+      ]
+    }
+  }
+]
