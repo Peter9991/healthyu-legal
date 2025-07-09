@@ -1,24 +1,46 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Authentication Complete</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <style>
-    body { font-family: 'Inter', Arial, sans-serif; background: #f7f7fa; color: #222; display: flex; align-items: center; justify-content: center; height: 100vh; }
-    .box { background: #fff; border-radius: 12px; box-shadow: 0 2px 16px #0002; padding: 32px 24px; text-align: center; }
-    .success { color: #22D231; font-size: 1.3rem; margin-bottom: 10px; }
-    .info { color: #555; font-size: 1rem; }
-  </style>
-</head>
-<body>
-  <div class="box">
-    <div class="success">Authentication Complete</div>
-    <div class="info">You can close this window and return to the app.</div>
-  </div>
-  <script>
-    // Optionally, try to close the window automatically (works in some browsers)
-    setTimeout(() => { window.close(); }, 2000);
-  </script>
-</body>
+<html>
+  <head>
+    <title>Signing you in...</title>
+    <meta charset="utf-8" />
+    <script>
+      // Parse query params
+      function getParams() {
+        const params = {};
+        window.location.search.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m, key, value) {
+          params[key] = decodeURIComponent(value);
+        });
+        return params;
+      }
+
+      window.onload = function() {
+        const params = getParams();
+        // Compose the App Link (Universal Link) for both platforms
+        // Use your App Link (https) for Android, and optionally your custom scheme for iOS fallback
+        const appLink = `https://healthyu.app/auth-callback.html?userId=${encodeURIComponent(params.userId || '')}&secret=${encodeURIComponent(params.secret || '')}${params.error ? `&error=${encodeURIComponent(params.error)}` : ''}`;
+        // Optionally, you can also try your custom scheme as a fallback
+        const customScheme = `healthyu://auth-callback?userId=${encodeURIComponent(params.userId || '')}&secret=${encodeURIComponent(params.secret || '')}${params.error ? `&error=${encodeURIComponent(params.error)}` : ''}`;
+
+        // Try to open the app via App Link first
+        window.location.replace(appLink);
+
+        // Fallback: After a short delay, try the custom scheme (for iOS, or if App Link fails)
+        setTimeout(function() {
+          window.location.replace(customScheme);
+        }, 800);
+
+        // Final fallback: Try to close the tab after a bit longer
+        setTimeout(function() {
+          window.close();
+        }, 2000);
+      };
+    </script>
+    <style>
+      body { font-family: sans-serif; text-align: center; margin-top: 20vh; }
+    </style>
+  </head>
+  <body>
+    <h2>Signing you in...</h2>
+    <p>If you are not redirected, you can close this page.</p>
+  </body>
 </html>
