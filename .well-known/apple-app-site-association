@@ -1,0 +1,11 @@
+  {
+    "applinks": {
+      "apps": [],
+      "details": [
+        {
+          "appID": "6GZHDDTVZW.com.healthyu.app",
+          "paths": [ "/auth-callback*" ]
+        }
+      ]
+    }
+  }
