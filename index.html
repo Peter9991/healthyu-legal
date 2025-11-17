@@ -581,38 +581,88 @@
       background: linear-gradient(180deg, rgba(46,125,50,0.03) 0%, rgba(33,150,243,0.02) 100%);
       will-change: transform;
     }
-    /* Normal Scrolling - No Sticky Stacking Effect */
+    /* Sticky Stacking Effect - Desktop Only */
     .sectioned {
       position: relative;
     }
     .sticky-stack-wrapper {
       position: relative;
+      /* Removed padding-bottom to fix empty space at bottom */
     }
-    /* Remove sticky positioning - all sections scroll normally */
+    /* Base styles for ALL 8 panels.
+       NO 'display: flex' here, as it breaks complex panels. */
     .stacking-panel {
-      position: relative;
+      position: sticky;
       min-height: 100vh;
       width: 100vw;
       box-sizing: border-box;
     }
-    /* Layout rules for sections */
+    /* Disable sticky stacking on mobile/tablet devices */
+    @media (max-width: 1024px) {
+      .stacking-panel {
+        position: relative !important;
+      }
+      .about-mission-bg.stacking-panel {
+        position: relative !important;
+      }
+      .features-section.stacking-panel {
+        position: relative !important;
+      }
+      /* Remove z-index stacking on mobile */
+      .sticky-stack-wrapper .stacking-panel:nth-of-type(1),
+      .sticky-stack-wrapper .stacking-panel:nth-of-type(2),
+      .sticky-stack-wrapper .stacking-panel:nth-of-type(3),
+      .sticky-stack-wrapper .stacking-panel:nth-of-type(4),
+      .sticky-stack-wrapper .stacking-panel:nth-of-type(5),
+      .sticky-stack-wrapper .stacking-panel:nth-of-type(6),
+      .sticky-stack-wrapper .stacking-panel:nth-of-type(7),
+      .sticky-stack-wrapper .stacking-panel:nth-of-type(8) {
+        position: relative !important;
+        top: auto !important;
+        z-index: auto !important;
+      }
+    }
+    /* --- Layout Restoration Rules --- */
+    /* This rule restores the flex layout ONLY for the sections that need it */
     .hero.stacking-panel, 
     .section-block-split.stacking-panel {
       display: flex;
       align-items: center;
       justify-content: center;
+      /* Re-apply border/backdrop from your old rule */
+      backdrop-filter: blur(10px);
+      border-bottom: 2px solid transparent;
+      border-image: linear-gradient(90deg, rgba(46,125,50,0.2), rgba(33,150,243,0.2), rgba(156,39,176,0.2)) 1;
     }
-    /* About/mission section layout */
+    /* This rule restores the specific layout for the about/mission section */
     .about-mission-bg.stacking-panel {
-      position: relative;
+      position: sticky; /* Explicitly set to override base .about-mission-bg position: relative */
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
     }
-    /* Features section layout */
+    /* Ensure features section also has sticky positioning */
     .features-section.stacking-panel {
-      position: relative;
+      position: sticky; /* Explicitly set to override base .features-section position: relative */
+    }
+    /* --- The Stacking Logic --- */
+    /* We use nth-of-type, which is robust */
+    .sticky-stack-wrapper .stacking-panel:nth-of-type(1) { top: 0px; z-index: 1; }
+    .sticky-stack-wrapper .stacking-panel:nth-of-type(2) { top: 15px; z-index: 2; }
+    .sticky-stack-wrapper .stacking-panel:nth-of-type(3) { top: 30px; z-index: 3; }
+    .sticky-stack-wrapper .stacking-panel:nth-of-type(4) { top: 45px; z-index: 4; }
+    .sticky-stack-wrapper .stacking-panel:nth-of-type(5) { top: 60px; z-index: 5; }
+    .sticky-stack-wrapper .stacking-panel:nth-of-type(6) { top: 75px; z-index: 6; }
+    .sticky-stack-wrapper .stacking-panel:nth-of-type(7) { top: 90px; z-index: 7; }
+    /* THE LAST PANEL (Panel 8) - NOT sticky, stops the stack */
+    .sticky-stack-wrapper .stacking-panel:nth-of-type(8) {
+      position: relative; /* This makes it non-sticky */
+      z-index: 8;       /* Highest z-index to scroll over the others */
+      /* Re-apply border/backdrop */
+      backdrop-filter: blur(10px);
+      border-bottom: 2px solid transparent;
+      border-image: linear-gradient(90deg, rgba(46,125,50,0.2), rgba(33,150,243,0.2), rgba(156,39,176,0.2)) 1;
     }
     /* --- Fix for title/background selectors --- */
     /* The numbers are now 4-8 for these sections */
