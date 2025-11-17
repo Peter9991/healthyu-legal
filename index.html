@@ -581,63 +581,38 @@
       background: linear-gradient(180deg, rgba(46,125,50,0.03) 0%, rgba(33,150,243,0.02) 100%);
       will-change: transform;
     }
-    /* Sticky Stacking Effect */
+    /* Normal Scrolling - No Sticky Stacking Effect */
     .sectioned {
       position: relative;
     }
     .sticky-stack-wrapper {
       position: relative;
-      /* Removed padding-bottom to fix empty space at bottom */
     }
-    /* Base styles for ALL 8 panels.
-       NO 'display: flex' here, as it breaks complex panels. */
+    /* Remove sticky positioning - all sections scroll normally */
     .stacking-panel {
-      position: sticky;
+      position: relative;
       min-height: 100vh;
       width: 100vw;
       box-sizing: border-box;
     }
-    /* --- Layout Restoration Rules --- */
-    /* This rule restores the flex layout ONLY for the sections that need it */
+    /* Layout rules for sections */
     .hero.stacking-panel, 
     .section-block-split.stacking-panel {
       display: flex;
       align-items: center;
       justify-content: center;
-      /* Re-apply border/backdrop from your old rule */
-      backdrop-filter: blur(10px);
-      border-bottom: 2px solid transparent;
-      border-image: linear-gradient(90deg, rgba(46,125,50,0.2), rgba(33,150,243,0.2), rgba(156,39,176,0.2)) 1;
     }
-    /* This rule restores the specific layout for the about/mission section */
+    /* About/mission section layout */
     .about-mission-bg.stacking-panel {
-      position: sticky; /* Explicitly set to override base .about-mission-bg position: relative */
+      position: relative;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
     }
-    /* Ensure features section also has sticky positioning */
+    /* Features section layout */
     .features-section.stacking-panel {
-      position: sticky; /* Explicitly set to override base .features-section position: relative */
-    }
-    /* --- The Stacking Logic --- */
-    /* We use nth-of-type, which is robust */
-    .sticky-stack-wrapper .stacking-panel:nth-of-type(1) { top: 0px; z-index: 1; }
-    .sticky-stack-wrapper .stacking-panel:nth-of-type(2) { top: 15px; z-index: 2; }
-    .sticky-stack-wrapper .stacking-panel:nth-of-type(3) { top: 30px; z-index: 3; }
-    .sticky-stack-wrapper .stacking-panel:nth-of-type(4) { top: 45px; z-index: 4; }
-    .sticky-stack-wrapper .stacking-panel:nth-of-type(5) { top: 60px; z-index: 5; }
-    .sticky-stack-wrapper .stacking-panel:nth-of-type(6) { top: 75px; z-index: 6; }
-    .sticky-stack-wrapper .stacking-panel:nth-of-type(7) { top: 90px; z-index: 7; }
-    /* THE LAST PANEL (Panel 8) - NOT sticky, stops the stack */
-    .sticky-stack-wrapper .stacking-panel:nth-of-type(8) {
-      position: relative; /* This makes it non-sticky */
-      z-index: 8;       /* Highest z-index to scroll over the others */
-      /* Re-apply border/backdrop */
-      backdrop-filter: blur(10px);
-      border-bottom: 2px solid transparent;
-      border-image: linear-gradient(90deg, rgba(46,125,50,0.2), rgba(33,150,243,0.2), rgba(156,39,176,0.2)) 1;
+      position: relative;
     }
     /* --- Fix for title/background selectors --- */
     /* The numbers are now 4-8 for these sections */
