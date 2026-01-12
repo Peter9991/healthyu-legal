@@ -15,11 +15,14 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <style>
-    html, body {
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 20px;
+    }
+    body {
       height: 100%;
       margin: 0;
       padding: 0;
-      scroll-behavior: smooth;
     }
     body {
       font-family: 'Inter', sans-serif;
@@ -29,43 +32,6 @@
       padding: 0;
       overflow-x: hidden;
       height: 100%;
-    }
-    .snap-container {
-      scroll-snap-type: y mandatory;
-      overflow-y: scroll;
-      height: 100vh;
-    }
-    .snap-section {
-      scroll-snap-align: start;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      background: rgba(255, 255, 255, 0.95);
-      transition: background 0.5s;
-    }
-    .snap-section.hero-snap {
-      background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%);
-    }
-    .snap-section:nth-child(even) {
-      background: rgba(255, 255, 255, 0.98);
-    }
-    .snap-section .floating-emoji {
-      position: absolute;
-      font-size: 2.5rem;
-      opacity: 0.13;
-      pointer-events: none;
-      z-index: 1;
-      animation: floatEmoji 6s infinite linear;
-    }
-    .snap-section .floating-emoji2 {
-      position: absolute;
-      font-size: 2.5rem;
-      opacity: 0.13;
-      pointer-events: none;
-      z-index: 1;
-      animation: floatEmoji2 7s infinite linear;
     }
     @keyframes floatEmoji {
       0% { transform: translateY(0) rotate(0deg); }
@@ -170,30 +136,33 @@
       z-index: 2;
       display: block;
     }
-    /* Sectioned layout */
+    /* Sectioned layout - Optimized */
     .sectioned {
       width: 100vw;
       max-width: none;
       padding: 0;
       margin: 0;
       background: transparent;
-      display: flex;
-      flex-direction: column;
-      gap: 0;
+      position: relative;
     }
     .section-block-split {
       display: flex;
       align-items: center;
       justify-content: center;
-      min-height: 180px;
-      padding: 18px 3vw 10px 3vw;
-      gap: 18px;
+      min-height: 100vh;
+      padding: 80px 3vw;
+      gap: 60px;
       width: 100vw;
       max-width: none;
-      margin: 0 0 2px 0;
-      opacity: 1;
-      transform: none;
+      margin: 0;
       background: transparent;
+      position: relative;
+    }
+    .section-block-split:nth-child(even) {
+      background: linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(240,249,255,0.98) 100%);
+    }
+    .section-block-split:nth-child(odd):not(.hero):not(.about-mission-bg):not(.features-section) {
+      background: linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(245,240,255,0.98) 100%);
     }
     .section-block-split.reverse {
       flex-direction: row-reverse;
@@ -207,7 +176,7 @@
       object-fit: cover;
       margin: 0 0 0 0;
       transition: transform 0.3s, box-shadow 0.3s;
-      animation: floatImg 3s infinite alternate;
+      animation: floatImg 3s ease-in-out infinite;
       position: relative;
     }
     .section-img:hover {
@@ -215,8 +184,8 @@
       box-shadow: 0 16px 48px rgba(33,150,243,0.18), 0 4px 16px rgba(46,125,50,0.18);
     }
     @keyframes floatImg {
-      0% { transform: translateY(0); }
-      100% { transform: translateY(-10px); }
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
     }
     .section-text {
       max-width: 480px;
@@ -273,7 +242,7 @@
       box-shadow: 0 16px 50px rgba(33,150,243,0.18), 0 6px 20px rgba(46,125,50,0.15), 0 0 0 3px rgba(46,125,50,0.1);
       background: #fff;
       transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-      animation: floatImg 3s infinite alternate;
+      animation: floatImg 3s ease-in-out infinite;
       border: 2px solid rgba(46,125,50,0.12);
       position: relative;
     }
@@ -555,15 +524,6 @@
       z-index: 2;
       display: block;
     }
-    /* Sectioned layout with Parallax */
-    .sectioned {
-      width: 100vw;
-      max-width: none;
-      padding: 0;
-      margin: 0;
-      background: transparent;
-      position: relative;
-    }
     /* Parallax Background Elements */
     .parallax-bg {
       position: fixed;
@@ -580,107 +540,27 @@
       height: 120%;
       background: linear-gradient(180deg, rgba(46,125,50,0.03) 0%, rgba(33,150,243,0.02) 100%);
       will-change: transform;
+      transform: translateZ(0); /* GPU acceleration */
     }
-    /* Sticky Stacking Effect - Desktop Only */
-    .sectioned {
-      position: relative;
+    /* Optimized Scroll-Reveal Animation System (Replaces Heavy Sticky Stacking) */
+    .scroll-reveal {
+      opacity: 0;
+      transform: translateY(60px);
+      transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+      will-change: opacity, transform;
     }
-    .sticky-stack-wrapper {
-      position: relative;
-      /* Removed padding-bottom to fix empty space at bottom */
+    .scroll-reveal.revealed {
+      opacity: 1;
+      transform: translateY(0);
     }
-    /* Base styles for ALL 8 panels.
-       NO 'display: flex' here, as it breaks complex panels. */
-    .stacking-panel {
-      position: sticky;
-      min-height: 100vh;
-      width: 100vw;
-      box-sizing: border-box;
+    .scroll-reveal-delay-1 {
+      transition-delay: 0.1s;
     }
-    /* Disable sticky stacking on mobile/tablet devices */
-    @media (max-width: 1024px) {
-      .stacking-panel {
-        position: relative !important;
-      }
-      .about-mission-bg.stacking-panel {
-        position: relative !important;
-      }
-      .features-section.stacking-panel {
-        position: relative !important;
-      }
-      /* Remove z-index stacking on mobile */
-      .sticky-stack-wrapper .stacking-panel:nth-of-type(1),
-      .sticky-stack-wrapper .stacking-panel:nth-of-type(2),
-      .sticky-stack-wrapper .stacking-panel:nth-of-type(3),
-      .sticky-stack-wrapper .stacking-panel:nth-of-type(4),
-      .sticky-stack-wrapper .stacking-panel:nth-of-type(5),
-      .sticky-stack-wrapper .stacking-panel:nth-of-type(6),
-      .sticky-stack-wrapper .stacking-panel:nth-of-type(7),
-      .sticky-stack-wrapper .stacking-panel:nth-of-type(8) {
-        position: relative !important;
-        top: auto !important;
-        z-index: auto !important;
-      }
+    .scroll-reveal-delay-2 {
+      transition-delay: 0.2s;
     }
-    /* --- Layout Restoration Rules --- */
-    /* This rule restores the flex layout ONLY for the sections that need it */
-    .hero.stacking-panel, 
-    .section-block-split.stacking-panel {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      /* Re-apply border/backdrop from your old rule */
-      backdrop-filter: blur(10px);
-      border-bottom: 2px solid transparent;
-      border-image: linear-gradient(90deg, rgba(46,125,50,0.2), rgba(33,150,243,0.2), rgba(156,39,176,0.2)) 1;
-    }
-    /* This rule restores the specific layout for the about/mission section */
-    .about-mission-bg.stacking-panel {
-      position: sticky; /* Explicitly set to override base .about-mission-bg position: relative */
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-    }
-    /* Ensure features section also has sticky positioning */
-    .features-section.stacking-panel {
-      position: sticky; /* Explicitly set to override base .features-section position: relative */
-    }
-    /* --- The Stacking Logic --- */
-    /* We use nth-of-type, which is robust */
-    .sticky-stack-wrapper .stacking-panel:nth-of-type(1) { top: 0px; z-index: 1; }
-    .sticky-stack-wrapper .stacking-panel:nth-of-type(2) { top: 15px; z-index: 2; }
-    .sticky-stack-wrapper .stacking-panel:nth-of-type(3) { top: 30px; z-index: 3; }
-    .sticky-stack-wrapper .stacking-panel:nth-of-type(4) { top: 45px; z-index: 4; }
-    .sticky-stack-wrapper .stacking-panel:nth-of-type(5) { top: 60px; z-index: 5; }
-    .sticky-stack-wrapper .stacking-panel:nth-of-type(6) { top: 75px; z-index: 6; }
-    .sticky-stack-wrapper .stacking-panel:nth-of-type(7) { top: 90px; z-index: 7; }
-    /* THE LAST PANEL (Panel 8) - NOT sticky, stops the stack */
-    .sticky-stack-wrapper .stacking-panel:nth-of-type(8) {
-      position: relative; /* This makes it non-sticky */
-      z-index: 8;       /* Highest z-index to scroll over the others */
-      /* Re-apply border/backdrop */
-      backdrop-filter: blur(10px);
-      border-bottom: 2px solid transparent;
-      border-image: linear-gradient(90deg, rgba(46,125,50,0.2), rgba(33,150,243,0.2), rgba(156,39,176,0.2)) 1;
-    }
-    /* --- Fix for title/background selectors --- */
-    /* The numbers are now 4-8 for these sections */
-    /* Background gradients */
-    .sticky-stack-wrapper .stacking-panel:nth-of-type(4) {
-      background: linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(240,249,255,0.98) 100%);
-    }
-    .sticky-stack-wrapper .stacking-panel:nth-of-type(5) {
-      background: linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(245,240,255,0.98) 100%);
-    }
-    .sticky-stack-wrapper .stacking-panel:nth-of-type(6) {
-      background: linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(255,240,245,0.98) 100%);
-    }
-    .sticky-stack-wrapper .stacking-panel:nth-of-type(7) {
-      background: linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(240,255,244,0.98) 100%);
-    }
-    .sticky-stack-wrapper .stacking-panel:nth-of-type(8) {
-      background: linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(240,249,255,0.98) 100%);
+    .scroll-reveal-delay-3 {
+      transition-delay: 0.3s;
     }
     .section-block-split.reverse {
       flex-direction: row-reverse;
@@ -692,12 +572,11 @@
       box-shadow: 0 20px 60px rgba(33,150,243,0.15), 0 8px 24px rgba(46,125,50,0.12), 0 0 0 1px rgba(46,125,50,0.08);
       background: #fff;
       object-fit: cover;
-      margin: 0 0 0 0;
-      animation: fadeInUp 1.2s;
+      margin: 0;
       transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
       position: relative;
       overflow: hidden;
-      transform: translateY(var(--parallax-y, 0));
+      will-change: transform;
     }
     .section-img::before {
       content: '';
@@ -716,9 +595,8 @@
       opacity: 1;
     }
     .section-img:hover {
-      transform: translateY(-8px) !important;
+      transform: translateY(-8px);
       box-shadow: 0 30px 80px rgba(33,150,243,0.2), 0 12px 32px rgba(46,125,50,0.15);
-      --parallax-y: -8px;
     }
     .section-img img {
       transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
@@ -740,32 +618,32 @@
       position: relative;
       display: inline-block;
     }
-    /* Title gradients */
-    .sticky-stack-wrapper .stacking-panel:nth-of-type(4) .section-title-split {
+    /* Title gradients for different sections */
+    #home-section .section-title-split {
       background: linear-gradient(135deg, #2e7d32 0%, #1de982 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
     }
-    .sticky-stack-wrapper .stacking-panel:nth-of-type(5) .section-title-split {
+    #restaurant-section .section-title-split {
       background: linear-gradient(135deg, #1976d2 0%, #42a5f5 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
     }
-    .sticky-stack-wrapper .stacking-panel:nth-of-type(6) .section-title-split {
+    #cart-section .section-title-split {
       background: linear-gradient(135deg, #7b1fa2 0%, #ba68c8 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
     }
-    .sticky-stack-wrapper .stacking-panel:nth-of-type(7) .section-title-split {
+    #fitness-section .section-title-split {
       background: linear-gradient(135deg, #ff6f00 0%, #ff9800 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
     }
-    .sticky-stack-wrapper .stacking-panel:nth-of-type(8) .section-title-split {
+    #manual-section .section-title-split {
       background: linear-gradient(135deg, #2e7d32 0%, #4caf50 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
@@ -782,19 +660,19 @@
       box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     }
     /* Title underlines */
-    .sticky-stack-wrapper .stacking-panel:nth-of-type(4) .section-title-split::after {
+    #home-section .section-title-split::after {
       background: linear-gradient(90deg, #1de982, #2e7d32);
     }
-    .sticky-stack-wrapper .stacking-panel:nth-of-type(5) .section-title-split::after {
+    #restaurant-section .section-title-split::after {
       background: linear-gradient(90deg, #42a5f5, #1976d2);
     }
-    .sticky-stack-wrapper .stacking-panel:nth-of-type(6) .section-title-split::after {
+    #cart-section .section-title-split::after {
       background: linear-gradient(90deg, #ba68c8, #7b1fa2);
     }
-    .sticky-stack-wrapper .stacking-panel:nth-of-type(7) .section-title-split::after {
+    #fitness-section .section-title-split::after {
       background: linear-gradient(90deg, #ff9800, #ff6f00);
     }
-    .sticky-stack-wrapper .stacking-panel:nth-of-type(8) .section-title-split::after {
+    #manual-section .section-title-split::after {
       background: linear-gradient(90deg, #4caf50, #2e7d32);
     }
     .section-desc-split {
@@ -1473,9 +1351,7 @@
     <div class="parallax-layer" data-speed="0.5"></div>
   </div>
   <div class="sectioned">
-    <!-- Sticky Stack Wrapper for proper stacking effect -->
-    <div class="sticky-stack-wrapper">
-      <div class="hero stacking-panel">
+    <div class="hero scroll-reveal">
         <div class="hero-inner">
           <div class="hero-content-block">
             <img src="healythu.png" alt="HealthyU Logo" class="hero-logo" />
@@ -1486,10 +1362,10 @@
             <div class="hero-title">Your smart gateway to <span class="highlight">healthy eating</span> in Egypt</div>
             <div class="hero-desc">Discover calorie-counted, nutritious meals from verified restaurants and home kitchens across Egypt. HealthyU is here to support your goals.</div>
           </div>
-          <img src="poster.jpg" alt="HealthyU App Poster" class="hero-poster-img" onerror="this.onerror=null;this.style.display='none';this.insertAdjacentHTML('afterend', '<div style=\'color:#fff;font-size:1.2rem;margin-top:20px;\'>Poster image not found</div>');" />
+          <img src="poster.jpg" alt="HealthyU App Poster" class="hero-poster-img" loading="eager" onerror="this.onerror=null;this.style.display='none';this.insertAdjacentHTML('afterend', '<div style=\'color:#fff;font-size:1.2rem;margin-top:20px;\'>Poster image not found</div>');" />
         </div>
       </div>
-      <div class="about-mission-bg stacking-panel">
+      <div class="about-mission-bg scroll-reveal scroll-reveal-delay-1">
         <div class="section-block-split" id="about-section">
           <div class="section-text fullwidth-text">
             <div class="section-title-split">About HealthyU</div>
@@ -1510,7 +1386,7 @@
         </div>
       </div>
       <!-- Features Section -->
-      <div class="features-section stacking-panel">
+      <div class="features-section scroll-reveal scroll-reveal-delay-2">
         <div class="features-container">
           <div class="features-title-wrapper">
             <h2 class="features-main-title">Key Features</h2>
@@ -1519,7 +1395,7 @@
           <div class="features-grid">
             <div class="feature-card">
               <div class="feature-image-wrapper">
-                <img src="Meal Suggestions.jpg" alt="Meal Suggestions" class="feature-image">
+                <img src="Meal Suggestions.jpg" alt="Meal Suggestions" class="feature-image" loading="lazy">
                 <div class="feature-overlay"></div>
               </div>
               <div class="feature-content">
@@ -1530,7 +1406,7 @@
             </div>
             <div class="feature-card">
               <div class="feature-image-wrapper">
-                <img src="Water_Calc.jpg" alt="Water Calculator" class="feature-image">
+                <img src="Water_Calc.jpg" alt="Water Calculator" class="feature-image" loading="lazy">
                 <div class="feature-overlay"></div>
               </div>
               <div class="feature-content">
@@ -1541,7 +1417,7 @@
             </div>
             <div class="feature-card">
               <div class="feature-image-wrapper">
-                <img src="Daily_Tip.jpg" alt="Daily Tip" class="feature-image">
+                <img src="Daily_Tip.jpg" alt="Daily Tip" class="feature-image" loading="lazy">
                 <div class="feature-overlay"></div>
               </div>
               <div class="feature-content">
@@ -1553,40 +1429,40 @@
           </div>
         </div>
       </div>
-      <div class="section-block-split stacking-panel" id="home-section">
-        <div class="section-img"><img src="Home_Page.jpg" alt="Home Page" style="width:100%;height:auto;border-radius:24px;"></div>
+      <div class="section-block-split scroll-reveal" id="home-section">
+        <div class="section-img"><img src="Home_Page.jpg" alt="Home Page" loading="lazy" style="width:100%;height:auto;border-radius:24px;"></div>
         <div class="section-text">
           <div class="section-title-split">Home Page</div>
           <div class="section-desc-split">The main screen where you can search for healthy restaurants, see your delivery address, and browse featured healthy food providers. Quick access to search and sort options.</div>
         </div>
       </div>
-      <div class="section-block-split reverse stacking-panel" id="restaurant-section">
-        <div class="section-img"><img src="User_on_Resturant.PNG" alt="Restaurant Page" style="width:100%;height:auto;border-radius:24px;"></div>
+      <div class="section-block-split reverse scroll-reveal" id="restaurant-section">
+        <div class="section-img"><img src="User_on_Resturant.PNG" alt="Restaurant Page" loading="lazy" style="width:100%;height:auto;border-radius:24px;"></div>
         <div class="section-text">
           <div class="section-title-split">Restaurant Page</div>
           <div class="section-desc-split">View a restaurant's profile, see their healthy food menu, packages, ratings, delivery fee, and nutritional details for each meal. Easily switch between meals and packages.</div>
         </div>
       </div>
-      <div class="section-block-split stacking-panel" id="cart-section">
-        <div class="section-img"><img src="Cart.jpg" alt="Cart Screen" style="width:100%;height:auto;border-radius:24px;"></div>
+      <div class="section-block-split scroll-reveal" id="cart-section">
+        <div class="section-img"><img src="Cart.jpg" alt="Cart Screen" loading="lazy" style="width:100%;height:auto;border-radius:24px;"></div>
         <div class="section-text">
           <div class="section-title-split">Cart Screen</div>
           <div class="section-desc-split">Review your selected meals, see the total price, and proceed to checkout. Edit or remove items and view important order disclaimers.</div>
         </div>
       </div>
-      <div class="section-block-split calculator-section stacking-panel" id="fitness-section">
+      <div class="section-block-split calculator-section scroll-reveal" id="fitness-section">
         <div class="calculator-container">
           <div class="calculator-images">
             <div class="calc-image-wrapper">
-              <img src="Calories_Calc%231.jpg" alt="Calories Calculator Input" class="calc-img">
+              <img src="Calories_Calc%231.jpg" alt="Calories Calculator Input" class="calc-img" loading="lazy">
               <div class="calc-label">Step 1: Input Details</div>
             </div>
             <div class="calc-image-wrapper">
-              <img src="Calories_Calc%232.jpg" alt="Calories Calculator Settings" class="calc-img">
+              <img src="Calories_Calc%232.jpg" alt="Calories Calculator Settings" class="calc-img" loading="lazy">
               <div class="calc-label">Step 2: Set Goals</div>
             </div>
             <div class="calc-image-wrapper">
-              <img src="Calories_Result.jpg" alt="Calories Results" class="calc-img">
+              <img src="Calories_Result.jpg" alt="Calories Results" class="calc-img" loading="lazy">
               <div class="calc-label">Step 3: Get Results</div>
             </div>
           </div>
@@ -1596,8 +1472,8 @@
           </div>
         </div>
       </div>
-      <div class="section-block-split reverse stacking-panel" id="manual-section">
-        <div class="section-img"><img src="Manual_Search.jpg" alt="Manual Search" style="width:100%;height:auto;border-radius:24px;"></div>
+      <div class="section-block-split reverse scroll-reveal" id="manual-section">
+        <div class="section-img"><img src="Manual_Search.jpg" alt="Manual Search" loading="lazy" style="width:100%;height:auto;border-radius:24px;"></div>
         <div class="section-text">
           <div class="section-title-split">Manual Search</div>
           <div class="section-desc-split">Find meals that match your specific nutritional requirements. Enter your target calories, protein, carbs, and fats to discover suitable meal options.</div>
@@ -1632,120 +1508,34 @@
     });
   </script>
   <script>
-    const mascotLogo = document.getElementById('mascot-logo');
-    const mascotLogoBg = document.getElementById('mascot-logo-bg');
-    const mascotWrap = document.getElementById('mascot-logo-wrap');
-    let mascotDrag = false, mascotOffset = {x:0,y:0};
-    mascotLogoBg.addEventListener('mousedown', e => {
-      mascotDrag = true;
-      const rect = mascotWrap.getBoundingClientRect();
-      mascotOffset.x = e.clientX - rect.left;
-      mascotOffset.y = e.clientY - rect.top;
-      mascotLogo.style.cursor = 'grabbing';
-    });
-    document.addEventListener('mousemove', e => {
-      if (mascotDrag) {
-        mascotWrap.style.left = (e.clientX - mascotOffset.x) + 'px';
-        mascotWrap.style.top = (e.clientY - mascotOffset.y) + 'px';
-        mascotWrap.style.right = 'auto';
-        mascotWrap.style.bottom = 'auto';
-        mascotWrap.style.position = 'fixed';
-      }
-    });
-    document.addEventListener('mouseup', () => { mascotDrag = false; mascotLogo.style.cursor = 'grab'; });
-    mascotLogo.addEventListener('click', (e) => {
-      // Spin
-      mascotLogo.style.transition = 'transform 1.5s cubic-bezier(.68,-0.55,.27,1.55)';
-      mascotLogo.style.transform = 'rotate(1440deg) scale(1.15)';
-      setTimeout(()=>{
-        mascotLogo.style.transition = 'transform 0.3s';
-        mascotLogo.style.transform = '';
-      }, 1500);
-      // Zap out nutrition icons and values, scattered randomly
-      const icons = [
-        '⚡','🥦','🍗','🥔','🥚','🥕','🍅','🍎','🥑',
-        '💪','120g','1540kcal','45g','32g','60g protein','carbs','fiber'
-      ];
-      const rect = mascotLogo.getBoundingClientRect();
-      for (let i = 0; i < icons.length; i++) {
-        const zap = document.createElement('span');
-        zap.textContent = icons[i];
-        zap.style.position = 'fixed';
-        zap.style.left = (rect.left + rect.width/2) + 'px';
-        zap.style.top = (rect.top + rect.height/2) + 'px';
-        zap.style.fontSize = (isNaN(icons[i]) && icons[i].length < 4 ? '2rem' : '1.1rem');
-        zap.style.background = 'none';
-        zap.style.color = icons[i].match(/kcal|g|protein|carbs|fat|fiber/) ? '#b2ff59' : '';
-        zap.style.borderRadius = '12px';
-        zap.style.padding = icons[i].match(/kcal|g|protein|carbs|fat|fiber/) ? '2px 8px' : '0';
-        zap.style.pointerEvents = 'none';
-        zap.style.zIndex = 9999;
-        zap.style.transition = 'transform 2.2s cubic-bezier(.68,-0.55,.27,1.55), opacity 2.2s';
-        document.body.appendChild(zap);
-        // Random direction and distance
-        const angle = Math.random() * 2 * Math.PI;
-        const distance = 200 + Math.random() * 600;
-        const x = Math.cos(angle) * distance;
-        const y = Math.sin(angle) * distance;
-        setTimeout(() => {
-          zap.style.transform = `translate(${x}px,${y}px) scale(1.3)`;
-          zap.style.opacity = 0;
-        }, 10);
-        setTimeout(() => zap.remove(), 2300);
-      }
-    });
-    // Card stack effect only for app screenshots section
-    const appScreenshots = Array.from(document.querySelectorAll('.app-screenshot'));
-    function updateActiveScreenshot() {
-      const appPreviewSection = document.querySelector('.app-preview');
-      if (!appPreviewSection) return;
-      const sectionTop = appPreviewSection.offsetTop;
-      const sectionHeight = appPreviewSection.offsetHeight;
-      const scrollY = window.scrollY;
-      if (scrollY >= sectionTop && scrollY < sectionTop + sectionHeight) {
-        const progress = (scrollY - sectionTop) / sectionHeight;
-        const idx = Math.min(
-          Math.floor(progress * appScreenshots.length),
-          appScreenshots.length - 1
-        );
-        appScreenshots.forEach((screenshot, i) => {
-          if (i === idx) {
-            screenshot.classList.add('active');
-          } else {
-            screenshot.classList.remove('active');
-          }
-        });
-      } else {
-        // If not in the section, hide all screenshots
-        appScreenshots.forEach(screenshot => screenshot.classList.remove('active'));
-      }
-    }
-    window.addEventListener('scroll', updateActiveScreenshot);
-    updateActiveScreenshot();
+    // Optimized Scroll Reveal using IntersectionObserver (Better Performance)
+    const observerOptions = {
+      threshold: 0.15,
+      rootMargin: '0px 0px -50px 0px'
+    };
     
-    // Parallax Scrolling Effect
-    let ticking = false;
-    function updateParallax() {
-      const scrolled = window.pageYOffset;
-      const parallaxLayer = document.querySelector('.parallax-layer');
-      if (parallaxLayer) {
-        const speed = 0.5;
-        parallaxLayer.style.transform = `translateY(${scrolled * speed}px)`;
-      }
-      
-      // Parallax for section images (slower movement) - only when not hovering
-      const sectionImages = document.querySelectorAll('.section-img');
-      sectionImages.forEach((img, index) => {
-        if (!img.matches(':hover')) {
-          const rect = img.getBoundingClientRect();
-          const speed = 0.08 + (index % 3) * 0.03;
-          if (rect.top < window.innerHeight && rect.bottom > 0) {
-            const yPos = -(rect.top * speed);
-            img.style.setProperty('--parallax-y', `${yPos}px`);
-          }
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('revealed');
+          revealObserver.unobserve(entry.target); // Stop observing once revealed
         }
       });
-      
+    }, observerOptions);
+    
+    // Observe all scroll-reveal elements
+    document.querySelectorAll('.scroll-reveal').forEach(el => {
+      revealObserver.observe(el);
+    });
+    
+    // Lightweight parallax effect (only for background layer)
+    let ticking = false;
+    function updateParallax() {
+      const parallaxLayer = document.querySelector('.parallax-layer');
+      if (parallaxLayer) {
+        const scrolled = window.pageYOffset;
+        parallaxLayer.style.transform = `translateY(${scrolled * 0.3}px)`;
+      }
       ticking = false;
     }
     
@@ -1754,7 +1544,7 @@
         window.requestAnimationFrame(updateParallax);
         ticking = true;
       }
-    });
+    }, { passive: true });
   </script>
 </body>
 </html>
