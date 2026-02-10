@@ -132,6 +132,14 @@
     .order-item-name { color: #1e293b; font-weight: 500; }
     .order-item-qty { color: #64748b; margin-left: 8px; }
     body.rtl .order-item-qty { margin-left: 0; margin-right: 8px; }
+    .customer-box { display: none; margin-top: 16px; padding: 14px; background: #f0f9ff; border-radius: 12px; border: 1px solid #bae6fd; }
+    .customer-title { font-size: 0.9rem; font-weight: 700; color: #0369a1; margin: 0 0 10px 0; }
+    .customer-line { font-size: 0.9rem; color: #0c4a6e; margin: 4px 0; line-height: 1.4; }
+    .customer-line a { color: #0284c7; text-decoration: none; font-weight: 600; }
+    .customer-line a:hover { text-decoration: underline; }
+    .btn-maps { display: inline-flex; align-items: center; justify-content: center; gap: 8px; margin-top: 12px; padding: 12px 18px; background: #059669; color: #fff; border: none; border-radius: 10px; font-size: 0.95rem; font-weight: 600; cursor: pointer; text-decoration: none; }
+    .btn-maps:active { opacity: 0.9; }
+    body.rtl .btn-maps { gap: 8px; }
   </style>
 </head>
 <body class="rtl">
@@ -149,6 +157,11 @@
       <div class="order-items-box" id="orderItemsBox">
         <p class="order-items-title" id="orderItemsTitle"></p>
         <div id="orderItemsList"></div>
+      </div>
+      <div class="customer-box" id="customerBox">
+        <p class="customer-title" id="customerTitle"></p>
+        <div id="customerContent"></div>
+        <a href="#" class="btn-maps" id="openMapsBtn" style="display: none;"></a>
       </div>
       <p class="distance" id="distance"></p>
       <div class="countdown-box" id="countdownBox">
@@ -181,6 +194,10 @@
       const orderItemsBox = document.getElementById('orderItemsBox');
       const orderItemsTitle = document.getElementById('orderItemsTitle');
       const orderItemsList = document.getElementById('orderItemsList');
+      const customerBox = document.getElementById('customerBox');
+      const customerTitle = document.getElementById('customerTitle');
+      const customerContent = document.getElementById('customerContent');
+      const openMapsBtn = document.getElementById('openMapsBtn');
 
       const API_BASE = window.location.origin;
       const NEAR_KM = 0.5;
@@ -210,7 +227,16 @@
           order: 'Order',
           delivering: 'Delivering',
           error: 'Error',
-          orderItems: 'Order items'
+          orderItems: 'Order items',
+          customerDetails: 'Customer details',
+          name: 'Name',
+          phone: 'Phone',
+          address: 'Address',
+          apartment: 'Apartment',
+          floor: 'Floor',
+          instructions: 'Instructions',
+          openInMaps: 'Open in Maps',
+          getDirections: 'Get directions'
         },
         ar: {
           loading: 'جاري التحميل…',
@@ -234,7 +260,16 @@
           order: 'طلب',
           delivering: 'جاري التوصيل',
           error: 'خطأ',
-          orderItems: 'عناصر الطلب'
+          orderItems: 'عناصر الطلب',
+          customerDetails: 'بيانات العميل',
+          name: 'الاسم',
+          phone: 'الهاتف',
+          address: 'العنوان',
+          apartment: 'الشقة',
+          floor: 'الطابق',
+          instructions: 'تعليمات التوصيل',
+          openInMaps: 'فتح في الخرائط',
+          getDirections: 'الحصول على الاتجاهات'
         }
       };
 
@@ -251,6 +286,29 @@
         }
         countdownDesc.textContent = t('nearDesc');
         if (orderItemsTitle.textContent) orderItemsTitle.textContent = t('orderItems');
+        if (customerTitle.textContent) customerTitle.textContent = t('customerDetails');
+        if (openMapsBtn.textContent) openMapsBtn.textContent = t('getDirections');
+      }
+      function renderCustomer(customer, destination) {
+        if (!customer && !destination) { customerBox.style.display = 'none'; return; }
+        customerTitle.textContent = t('customerDetails');
+        var parts = [];
+        if (customer && customer.name) parts.push('<div class="customer-line"><strong>' + t('name') + ':</strong> ' + String(customer.name).replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</div>');
+        if (customer && customer.phone) parts.push('<div class="customer-line"><strong>' + t('phone') + ':</strong> <a href="tel:' + String(customer.phone).replace(/[^0-9+]/g, '') + '">' + String(customer.phone).replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</a></div>');
+        if (customer && customer.address) parts.push('<div class="customer-line"><strong>' + t('address') + ':</strong> ' + String(customer.address).replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</div>');
+        if (customer && customer.apartment) parts.push('<div class="customer-line"><strong>' + t('apartment') + ':</strong> ' + String(customer.apartment).replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</div>');
+        if (customer && customer.floor) parts.push('<div class="customer-line"><strong>' + t('floor') + ':</strong> ' + String(customer.floor).replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</div>');
+        if (customer && customer.instructions) parts.push('<div class="customer-line"><strong>' + t('instructions') + ':</strong> ' + String(customer.instructions).replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</div>');
+        customerContent.innerHTML = parts.length ? parts.join('') : '<div class="customer-line">' + (lang === 'ar' ? 'لا توجد بيانات عميل' : 'No customer details') + '</div>';
+        if (destination && destination.lat != null && destination.lng != null) {
+          openMapsBtn.href = 'https://www.google.com/maps/dir/?api=1&destination=' + destination.lat + ',' + destination.lng;
+          openMapsBtn.textContent = t('getDirections');
+          openMapsBtn.style.display = 'inline-flex';
+          openMapsBtn.onclick = function (e) { e.preventDefault(); window.open(this.href, '_blank'); };
+        } else {
+          openMapsBtn.style.display = 'none';
+        }
+        customerBox.style.display = 'block';
       }
       function renderOrderItems(items) {
         if (!items || !items.length) { orderItemsBox.style.display = 'none'; return; }
@@ -390,6 +448,7 @@
           orderBadge.textContent = (lang === 'ar' ? t('order') + ' ' : t('order') + ' ') + currentOrderRef;
           orderBadge.style.display = 'inline-block';
           renderOrderItems(data.items);
+          renderCustomer(data.customer, destination);
           setStatus(currentOrderRef + ' – ' + (data.status === 'delivering' ? t('delivering') : data.status));
           if (!destination) { showErr(t('noAddress')); return; }
           allowLocationBox.style.display = 'block';
