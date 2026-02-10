@@ -108,21 +108,44 @@
       let nearAt = null;
       let watchId = null;
 
+      function getApiError(r) {
+        return r.text().then(function (text) {
+          try {
+            var j = JSON.parse(text);
+            return j.error || text || ('Request failed (' + r.status + ')');
+          } catch (e) {
+            return text || ('Request failed (' + r.status + ')');
+          }
+        });
+      }
+
       function apiGet() {
-        return fetch(API_BASE + '/api/delivery?orderId=' + encodeURIComponent(orderId) + '&token=' + encodeURIComponent(token))
+        var url = API_BASE + '/api/delivery?orderId=' + encodeURIComponent(orderId) + '&token=' + encodeURIComponent(token);
+        return fetch(url)
           .then(function (r) {
-            if (!r.ok) throw new Error(r.status === 403 ? 'Invalid link' : r.status === 404 ? 'Order not found' : 'Request failed');
+            if (!r.ok) {
+              return getApiError(r).then(function (msg) {
+                console.error('Delivery API GET failed', r.status, url, msg);
+                throw new Error(msg);
+              });
+            }
             return r.json();
           });
       }
 
       function apiPost(body) {
-        return fetch(API_BASE + '/api/delivery', {
+        var url = API_BASE + '/api/delivery';
+        return fetch(url, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(body),
         }).then(function (r) {
-          if (!r.ok) return r.json().then(function (j) { throw new Error(j.error || 'Request failed'); });
+          if (!r.ok) {
+            return getApiError(r).then(function (msg) {
+              console.error('Delivery API POST failed', r.status, msg);
+              throw new Error(msg);
+            });
+          }
           return r.json();
         });
       }
@@ -226,7 +249,9 @@
         })
         .catch(function (e) {
           setStatus('Error');
-          showErr(e.message);
+          var msg = e && e.message ? e.message : String(e);
+          console.error('Delivery track error', e);
+          showErr(msg);
         });
     })();
   </script>
