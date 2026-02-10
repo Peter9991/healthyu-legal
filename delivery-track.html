@@ -1,74 +1,155 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="theme-color" content="#6D28D9">
+  <meta name="theme-color" content="#22c55e">
   <title>HealthyU – Delivery</title>
   <style>
     * { box-sizing: border-box; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
       margin: 0;
-      padding: 16px;
-      background: #f8fafc;
+      padding: 0;
+      background: linear-gradient(180deg, #f0fdf4 0%, #f8fafc 100%);
       color: #1e293b;
       min-height: 100vh;
+      transition: direction 0.2s ease;
+    }
+    body.rtl { text-align: right; direction: rtl; }
+    .container { max-width: 420px; margin: 0 auto; padding: 20px 16px; }
+    .header {
+      text-align: center;
+      padding: 24px 0 20px;
+    }
+    .logo {
+      height: 44px;
+      width: auto;
+      display: block;
+      margin: 0 auto;
+      object-fit: contain;
     }
     .card {
       background: #fff;
-      border-radius: 12px;
-      padding: 20px;
+      border-radius: 16px;
+      padding: 24px;
       margin-bottom: 16px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+      border: 1px solid rgba(34, 197, 94, 0.15);
     }
-    h1 { font-size: 1.25rem; margin: 0 0 8px 0; color: #334155; }
-    .status { font-size: 0.9rem; color: #64748b; margin-bottom: 12px; }
-    .distance { font-size: 1.1rem; font-weight: 600; color: #6D28D9; }
-    .countdown {
-      font-size: 1.5rem;
+    .order-badge {
+      display: inline-block;
+      background: #dcfce7;
+      color: #166534;
       font-weight: 700;
+      font-size: 0.95rem;
+      padding: 6px 12px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      letter-spacing: 0.02em;
+    }
+    .status { font-size: 0.95rem; color: #475569; margin: 0 0 12px 0; line-height: 1.4; }
+    .distance {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #22c55e;
+      margin: 8px 0;
+      padding: 10px 12px;
+      background: #f0fdf4;
+      border-radius: 10px;
+    }
+    .countdown-box {
+      display: none;
+      margin-top: 16px;
+      padding: 16px;
+      background: #ecfdf5;
+      border-radius: 12px;
+      border: 1px solid #a7f3d0;
+    }
+    .countdown-desc { font-size: 0.9rem; color: #065f46; margin: 0 0 12px 0; line-height: 1.4; }
+    .countdown {
+      font-size: 2rem;
+      font-weight: 800;
       color: #059669;
       text-align: center;
-      padding: 16px;
-      margin: 12px 0;
-      background: #ecfdf5;
-      border-radius: 8px;
+      padding: 12px 0;
+      letter-spacing: 0.05em;
     }
-    .error { color: #dc2626; background: #fef2f2; padding: 12px; border-radius: 8px; margin: 8px 0; }
+    .error {
+      color: #b91c1c;
+      background: #fef2f2;
+      padding: 12px 14px;
+      border-radius: 10px;
+      margin: 12px 0;
+      font-size: 0.9rem;
+      border: 1px solid #fecaca;
+    }
     .btn {
-      display: inline-block;
-      padding: 12px 20px;
-      background: #6D28D9;
-      color: #fff;
+      display: block;
+      width: 100%;
+      padding: 14px 20px;
       border: none;
-      border-radius: 8px;
+      border-radius: 12px;
       font-size: 1rem;
       font-weight: 600;
       cursor: pointer;
-      width: 100%;
-      margin-top: 8px;
+      margin-top: 12px;
+      transition: opacity 0.2s, transform 0.05s;
     }
+    .btn:active { transform: scale(0.98); }
     .btn:disabled { opacity: 0.6; cursor: not-allowed; }
-    .btn.done { background: #059669; }
-    .small { font-size: 0.85rem; color: #64748b; margin-top: 8px; }
+    .btn-primary { background: #22c55e; color: #fff; }
+    .btn-done { background: #059669; color: #fff; }
     #allowLocation { margin-top: 16px; }
+    .lang-toggle {
+      position: fixed;
+      top: 12px;
+      right: 12px;
+      z-index: 10;
+      display: flex;
+      gap: 4px;
+      background: #fff;
+      padding: 4px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    body.rtl .lang-toggle { right: auto; left: 12px; }
+    .lang-toggle button {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      background: transparent;
+      color: #64748b;
+    }
+    .lang-toggle button.active { background: #22c55e; color: #fff; }
   </style>
 </head>
-<body>
-  <div class="card">
-    <h1>HealthyU Delivery</h1>
-    <p class="status" id="status">Loading…</p>
-    <p class="distance" id="distance"></p>
-    <div id="countdownBox" style="display: none;">
-      <p class="small">You're near the customer. After this countdown the order will be marked as delivered.</p>
-      <p class="countdown" id="countdown">–</p>
-      <button class="btn done" id="markDelivered" style="display: none;">Mark as delivered</button>
+<body class="rtl">
+  <div class="lang-toggle">
+    <button type="button" id="langEn">English</button>
+    <button type="button" id="langAr" class="active">عربي</button>
+  </div>
+  <div class="container">
+    <header class="header">
+      <img src="healythu.png" alt="HealthyU" class="logo" />
+    </header>
+    <div class="card">
+      <div class="order-badge" id="orderBadge" style="display: none;"></div>
+      <p class="status" id="status">جاري التحميل…</p>
+      <p class="distance" id="distance"></p>
+      <div class="countdown-box" id="countdownBox">
+        <p class="countdown-desc" id="countdownDesc"></p>
+        <p class="countdown" id="countdown">–</p>
+        <button class="btn btn-done" id="markDelivered" style="display: none;"></button>
+      </div>
+      <div id="allowLocation" style="display: none;">
+        <button class="btn btn-primary" id="allowBtn"></button>
+      </div>
+      <p class="error" id="err" style="display: none;"></p>
     </div>
-    <div id="allowLocation" style="display: none;">
-      <button class="btn" id="allowBtn">Allow location</button>
-    </div>
-    <p class="error" id="err" style="display: none;"></p>
   </div>
 
   <script>
@@ -79,34 +160,106 @@
       const statusEl = document.getElementById('status');
       const distanceEl = document.getElementById('distance');
       const countdownBox = document.getElementById('countdownBox');
+      const countdownDesc = document.getElementById('countdownDesc');
       const countdownEl = document.getElementById('countdown');
       const markDeliveredBtn = document.getElementById('markDelivered');
       const allowLocationBox = document.getElementById('allowLocation');
       const allowBtn = document.getElementById('allowBtn');
       const errEl = document.getElementById('err');
+      const orderBadge = document.getElementById('orderBadge');
 
       const API_BASE = window.location.origin;
       const NEAR_KM = 0.5;
       const COUNTDOWN_MINUTES = 15;
 
+      var lang = 'ar';
+      var strings = {
+        en: {
+          loading: 'Loading…',
+          invalidLink: 'Invalid link',
+          missingParams: 'Missing orderId or token in the URL.',
+          allowLocation: 'Allow location',
+          allowLocationDesc: 'Allow location to track delivery.',
+          gettingLocation: 'Getting location…',
+          trackingDelivery: 'Tracking delivery…',
+          nearDesc: 'You\'re near the customer. After this countdown the order will be marked as delivered.',
+          markDelivered: 'Mark as delivered',
+          marking: 'Marking…',
+          delivered: 'Delivered',
+          deliveredStatus: 'Order marked as delivered.',
+          distanceFrom: 'About {{dist}} from customer',
+          m: 'm',
+          km: 'km',
+          noAddress: 'This order has no delivery address.',
+          locationDenied: 'Location denied or unavailable. Please allow location and refresh.',
+          geolocationNotSupported: 'Geolocation is not supported.',
+          order: 'Order',
+          delivering: 'Delivering',
+          error: 'Error'
+        },
+        ar: {
+          loading: 'جاري التحميل…',
+          invalidLink: 'رابط غير صالح',
+          missingParams: 'معرّف الطلب أو الرمز مفقود في الرابط.',
+          allowLocation: 'السماح بالموقع',
+          allowLocationDesc: 'السماح بالموقع لتتبع التوصيل.',
+          gettingLocation: 'جاري الحصول على الموقع…',
+          trackingDelivery: 'جاري تتبع التوصيل…',
+          nearDesc: 'أنت قريب من العميل. بعد هذا العد التنازلي سيتم اعتبار الطلب مُسلّماً.',
+          markDelivered: 'تسليم الطلب',
+          marking: 'جاري التسجيل…',
+          delivered: 'تم التسليم',
+          deliveredStatus: 'تم تسجيل الطلب كمُسلّم.',
+          distanceFrom: 'حوالي {{dist}} من العميل',
+          m: 'م',
+          km: 'كم',
+          noAddress: 'هذا الطلب لا يحتوي على عنوان توصيل.',
+          locationDenied: 'تم رفض الموقع أو غير متاح. يرجى السماح بالموقع وتحديث الصفحة.',
+          geolocationNotSupported: 'الموقع الجغرافي غير مدعوم.',
+          order: 'طلب',
+          delivering: 'جاري التوصيل',
+          error: 'خطأ'
+        }
+      };
+
+      function t(key) { return (strings[lang] || strings.en)[key] || key; }
+      function setLang(newLang) {
+        lang = newLang;
+        document.documentElement.lang = lang === 'ar' ? 'ar' : 'en';
+        document.body.classList.toggle('rtl', lang === 'ar');
+        document.querySelector('#langEn').classList.toggle('active', lang === 'en');
+        document.querySelector('#langAr').classList.toggle('active', lang === 'ar');
+        if (allowBtn.textContent) allowBtn.textContent = t('allowLocation');
+        if (markDeliveredBtn.textContent && markDeliveredBtn.textContent !== '–') {
+          markDeliveredBtn.textContent = markDeliveredBtn.textContent === 'Delivered' || markDeliveredBtn.textContent === 'Marking…' ? t(markDeliveredBtn.textContent === 'Marking…' ? 'marking' : 'delivered') : t('markDelivered');
+        }
+        countdownDesc.textContent = t('nearDesc');
+      }
+      document.getElementById('langEn').onclick = function () { setLang('en'); };
+      document.getElementById('langAr').onclick = function () { setLang('ar'); };
+
+      function shortOrderRef(orderNumber, id) {
+        if (orderNumber && orderNumber.length <= 12) return orderNumber;
+        if (orderNumber && /#?\d{4,}$/.test(orderNumber)) return orderNumber.replace(/^.*?(\d{4,})$/, '#$1');
+        return '#' + (id || orderId || '').slice(-6);
+      }
+
       function showErr(msg) {
         errEl.textContent = msg;
         errEl.style.display = 'block';
       }
-
-      function setStatus(text) {
-        statusEl.textContent = text;
-      }
+      function setStatus(text) { statusEl.textContent = text; }
 
       if (!orderId || !token) {
-        setStatus('Invalid link');
-        showErr('Missing orderId or token in the URL.');
+        setStatus(t('invalidLink'));
+        showErr(t('missingParams'));
         return;
       }
 
-      let destination = null;
-      let nearAt = null;
-      let watchId = null;
+      var destination = null;
+      var nearAt = null;
+      var watchId = null;
+      var currentOrderRef = '';
 
       function getApiError(r) {
         return r.text().then(function (text) {
@@ -118,61 +271,44 @@
           }
         });
       }
-
       function apiGet() {
         var url = API_BASE + '/api/delivery?orderId=' + encodeURIComponent(orderId) + '&token=' + encodeURIComponent(token);
-        return fetch(url)
-          .then(function (r) {
-            if (!r.ok) {
-              return getApiError(r).then(function (msg) {
-                console.error('Delivery API GET failed', r.status, url, msg);
-                throw new Error(msg);
-              });
-            }
-            return r.json();
-          });
+        return fetch(url).then(function (r) {
+          if (!r.ok) return getApiError(r).then(function (msg) { console.error('Delivery API GET failed', r.status, msg); throw new Error(msg); });
+          return r.json();
+        });
       }
-
       function apiPost(body) {
-        var url = API_BASE + '/api/delivery';
-        return fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body),
-        }).then(function (r) {
-          if (!r.ok) {
-            return getApiError(r).then(function (msg) {
-              console.error('Delivery API POST failed', r.status, msg);
-              throw new Error(msg);
-            });
-          }
+        return fetch(API_BASE + '/api/delivery', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }).then(function (r) {
+          if (!r.ok) return getApiError(r).then(function (msg) { console.error('Delivery API POST failed', r.status, msg); throw new Error(msg); });
           return r.json();
         });
       }
 
       function startCountdown() {
         if (!nearAt) return;
+        countdownDesc.textContent = t('nearDesc');
         countdownBox.style.display = 'block';
         var end = new Date(nearAt).getTime() + COUNTDOWN_MINUTES * 60 * 1000;
-
         function tick() {
           var now = Date.now();
           if (now >= end) {
-            countdownEl.textContent = 'Done';
+            countdownEl.textContent = t('delivered');
+            markDeliveredBtn.textContent = t('markDelivered');
             markDeliveredBtn.style.display = 'block';
             markDeliveredBtn.onclick = function () {
               markDeliveredBtn.disabled = true;
-              markDeliveredBtn.textContent = 'Marking…';
+              markDeliveredBtn.textContent = t('marking');
               apiPost({ orderId: orderId, token: token, action: 'mark_delivered' })
                 .then(function () {
-                  setStatus('Order marked as delivered.');
-                  countdownEl.textContent = 'Delivered';
-                  markDeliveredBtn.textContent = 'Delivered';
+                  setStatus(t('deliveredStatus'));
+                  countdownEl.textContent = t('delivered');
+                  markDeliveredBtn.textContent = t('delivered');
                 })
                 .catch(function (e) {
                   showErr(e.message);
                   markDeliveredBtn.disabled = false;
-                  markDeliveredBtn.textContent = 'Mark as delivered';
+                  markDeliveredBtn.textContent = t('markDelivered');
                 });
             };
             return;
@@ -187,40 +323,26 @@
       }
 
       function onLocation(lat, lng) {
-        apiPost({
-          orderId: orderId,
-          token: token,
-          action: 'update_location',
-          lat: lat,
-          lng: lng,
-        })
+        apiPost({ orderId: orderId, token: token, action: 'update_location', lat: lat, lng: lng })
           .then(function (data) {
             var dist = data.distanceKm != null ? data.distanceKm : null;
             if (dist != null) {
-              if (dist < 0.5) {
-                distanceEl.textContent = 'About ' + Math.round(dist * 1000) + ' m from customer';
-              } else {
-                distanceEl.textContent = 'About ' + (dist < 1 ? (dist * 1000).toFixed(0) + ' m' : dist.toFixed(2) + ' km') + ' from customer';
-              }
+              var distStr = dist < 0.5 ? Math.round(dist * 1000) + ' ' + t('m') : (dist < 1 ? (dist * 1000).toFixed(0) + ' ' + t('m') : dist.toFixed(2) + ' ' + t('km'));
+              distanceEl.textContent = t('distanceFrom').replace('{{dist}}', distStr);
             }
-            if (data.nearAt && !nearAt) {
-              nearAt = data.nearAt;
-              startCountdown();
-            }
+            if (data.nearAt && !nearAt) { nearAt = data.nearAt; startCountdown(); }
           })
           .catch(function () {});
       }
 
+      allowBtn.textContent = t('allowLocation');
       allowBtn.onclick = function () {
-        setStatus('Getting location…');
+        setStatus(t('gettingLocation'));
         allowLocationBox.style.display = 'none';
-        if (!navigator.geolocation) {
-          showErr('Geolocation is not supported.');
-          return;
-        }
+        if (!navigator.geolocation) { showErr(t('geolocationNotSupported')); return; }
         navigator.geolocation.getCurrentPosition(
           function (pos) {
-            setStatus('Tracking delivery…');
+            setStatus(t('trackingDelivery'));
             onLocation(pos.coords.latitude, pos.coords.longitude);
             watchId = navigator.geolocation.watchPosition(
               function (p) { onLocation(p.coords.latitude, p.coords.longitude); },
@@ -228,10 +350,7 @@
               { enableHighAccuracy: true, maximumAge: 20000, timeout: 10000 }
             );
           },
-          function (err) {
-            showErr('Location denied or unavailable. Please allow location and refresh.');
-            allowLocationBox.style.display = 'block';
-          },
+          function () { showErr(t('locationDenied')); allowLocationBox.style.display = 'block'; },
           { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
         );
       };
@@ -239,16 +358,16 @@
       apiGet()
         .then(function (data) {
           destination = data.destination;
-          setStatus('Order #' + (data.orderNumber || orderId) + ' – ' + (data.status === 'delivering' ? 'Delivering' : data.status));
-          if (!destination) {
-            showErr('This order has no delivery address.');
-            return;
-          }
+          currentOrderRef = shortOrderRef(data.orderNumber, data.orderId || orderId);
+          orderBadge.textContent = (lang === 'ar' ? t('order') + ' ' : t('order') + ' ') + currentOrderRef;
+          orderBadge.style.display = 'inline-block';
+          setStatus(currentOrderRef + ' – ' + (data.status === 'delivering' ? t('delivering') : data.status));
+          if (!destination) { showErr(t('noAddress')); return; }
           allowLocationBox.style.display = 'block';
-          setStatus('Order #' + (data.orderNumber || orderId) + ' – Allow location to track delivery.');
+          setStatus(currentOrderRef + ' – ' + t('allowLocationDesc'));
         })
         .catch(function (e) {
-          setStatus('Error');
+          setStatus(t('error'));
           var msg = e && e.message ? e.message : String(e);
           console.error('Delivery track error', e);
           showErr(msg);
