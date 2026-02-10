@@ -125,6 +125,13 @@
       color: #64748b;
     }
     .lang-toggle button.active { background: #22c55e; color: #fff; }
+    .order-items-box { display: none; margin-top: 16px; padding: 14px; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0; }
+    .order-items-title { font-size: 0.9rem; font-weight: 700; color: #475569; margin: 0 0 10px 0; }
+    .order-item-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid #e2e8f0; font-size: 0.9rem; }
+    .order-item-row:last-child { border-bottom: none; }
+    .order-item-name { color: #1e293b; font-weight: 500; }
+    .order-item-qty { color: #64748b; margin-left: 8px; }
+    body.rtl .order-item-qty { margin-left: 0; margin-right: 8px; }
   </style>
 </head>
 <body class="rtl">
@@ -139,6 +146,10 @@
     <div class="card">
       <div class="order-badge" id="orderBadge" style="display: none;"></div>
       <p class="status" id="status">جاري التحميل…</p>
+      <div class="order-items-box" id="orderItemsBox">
+        <p class="order-items-title" id="orderItemsTitle"></p>
+        <div id="orderItemsList"></div>
+      </div>
       <p class="distance" id="distance"></p>
       <div class="countdown-box" id="countdownBox">
         <p class="countdown-desc" id="countdownDesc"></p>
@@ -167,6 +178,9 @@
       const allowBtn = document.getElementById('allowBtn');
       const errEl = document.getElementById('err');
       const orderBadge = document.getElementById('orderBadge');
+      const orderItemsBox = document.getElementById('orderItemsBox');
+      const orderItemsTitle = document.getElementById('orderItemsTitle');
+      const orderItemsList = document.getElementById('orderItemsList');
 
       const API_BASE = window.location.origin;
       const NEAR_KM = 0.5;
@@ -195,7 +209,8 @@
           geolocationNotSupported: 'Geolocation is not supported.',
           order: 'Order',
           delivering: 'Delivering',
-          error: 'Error'
+          error: 'Error',
+          orderItems: 'Order items'
         },
         ar: {
           loading: 'جاري التحميل…',
@@ -218,7 +233,8 @@
           geolocationNotSupported: 'الموقع الجغرافي غير مدعوم.',
           order: 'طلب',
           delivering: 'جاري التوصيل',
-          error: 'خطأ'
+          error: 'خطأ',
+          orderItems: 'عناصر الطلب'
         }
       };
 
@@ -234,6 +250,18 @@
           markDeliveredBtn.textContent = markDeliveredBtn.textContent === 'Delivered' || markDeliveredBtn.textContent === 'Marking…' ? t(markDeliveredBtn.textContent === 'Marking…' ? 'marking' : 'delivered') : t('markDelivered');
         }
         countdownDesc.textContent = t('nearDesc');
+        if (orderItemsTitle.textContent) orderItemsTitle.textContent = t('orderItems');
+      }
+      function renderOrderItems(items) {
+        if (!items || !items.length) { orderItemsBox.style.display = 'none'; return; }
+        orderItemsTitle.textContent = t('orderItems');
+        orderItemsList.innerHTML = items.map(function (it) {
+          var name = (it.name || 'Item').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+          var qty = it.quantity || 1;
+          var price = it.price != null && it.price !== '' ? ' — ' + Number(it.price).toFixed(2) + ' EGP' : '';
+          return '<div class="order-item-row"><span class="order-item-name">' + name + '<span class="order-item-qty">' + qty + 'x</span></span>' + (price ? '<span style="color:#64748b">' + price + '</span>' : '') + '</div>';
+        }).join('');
+        orderItemsBox.style.display = 'block';
       }
       document.getElementById('langEn').onclick = function () { setLang('en'); };
       document.getElementById('langAr').onclick = function () { setLang('ar'); };
@@ -361,6 +389,7 @@
           currentOrderRef = shortOrderRef(data.orderNumber, data.orderId || orderId);
           orderBadge.textContent = (lang === 'ar' ? t('order') + ' ' : t('order') + ' ') + currentOrderRef;
           orderBadge.style.display = 'inline-block';
+          renderOrderItems(data.items);
           setStatus(currentOrderRef + ' – ' + (data.status === 'delivering' ? t('delivering') : data.status));
           if (!destination) { showErr(t('noAddress')); return; }
           allowLocationBox.style.display = 'block';
