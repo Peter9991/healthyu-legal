@@ -1,19 +1,3 @@
-/**
- * Delivery tracking API for HealthyU.
- * Deploy to Vercel: project root = delivery-track-api, so route is /api/delivery.
- *
- * Env (Vercel): APPWRITE_ENDPOINT, APPWRITE_PROJECT_ID, APPWRITE_API_KEY,
- *   APPWRITE_DATABASE_ID, APPWRITE_ORDERS_COLLECTION_ID
- *
- * GET /api/delivery?orderId=xxx&token=yyy
- *   Returns { destination: { lat, lng }, orderNumber, status }. If status was 'preparing', updates to 'delivering'.
- *
- * POST /api/delivery
- *   Body: { orderId, token, action: 'update_location' | 'mark_delivered', lat?, lng? }
- *   update_location: sends driver location; if distance to customer <= 500m, sets deliveryNearAt. Returns { distanceKm, nearAt, status }.
- *   mark_delivered: if deliveryNearAt exists and >= 15 min ago, sets orderStatus to 'completed'. Returns { success }.
- */
-
 import { Client, Databases, Query } from 'node-appwrite';
 
 const NEAR_RADIUS_KM = 0.5;       // 500 metres
@@ -108,11 +92,23 @@ export default async function handler(req, res) {
           orderStatus: 'delivering',
         });
       }
+      let items = [];
+      try {
+        const raw = order.items;
+        if (typeof raw === 'string') items = JSON.parse(raw);
+        else if (Array.isArray(raw)) items = raw;
+      } catch (_) {}
+      items = items.slice(0, 50).map((it) => ({
+        name: it.name || 'Item',
+        quantity: it.quantity || 1,
+        price: it.price != null ? it.price : null,
+      }));
       res.setHeader('Access-Control-Allow-Origin', origin);
       return res.status(200).json({
         destination: destLat != null && destLng != null ? { lat: destLat, lng: destLng } : null,
         orderNumber: order.orderNumber || orderId,
         status: status === 'preparing' ? 'delivering' : status,
+        items,
       });
     }
 
@@ -126,14 +122,16 @@ export default async function handler(req, res) {
       }
       const distanceKm = haversineKm(lat, lng, destLat, destLng);
       let nearAt = order.deliveryNearAt || null;
-      const updates = {};
+      const updates = {
+        driverLat: lat,
+        driverLng: lng,
+        driverLocationUpdatedAt: new Date().toISOString(),
+      };
       if (distanceKm <= NEAR_RADIUS_KM && !nearAt) {
         nearAt = new Date().toISOString();
         updates.deliveryNearAt = nearAt;
       }
-      if (Object.keys(updates).length) {
-        await databases.updateDocument(databaseId, orderCollectionId, orderId, updates);
-      }
+      await databases.updateDocument(databaseId, orderCollectionId, orderId, updates);
       res.setHeader('Access-Control-Allow-Origin', origin);
       return res.status(200).json({
         distanceKm: Math.round(distanceKm * 1000) / 1000,
