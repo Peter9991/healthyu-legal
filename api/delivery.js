@@ -1,3 +1,19 @@
+/**
+ * Delivery tracking API for HealthyU.
+ * Deploy to Vercel: project root = delivery-track-api, so route is /api/delivery.
+ *
+ * Env (Vercel): APPWRITE_ENDPOINT, APPWRITE_PROJECT_ID, APPWRITE_API_KEY,
+ *   APPWRITE_DATABASE_ID, APPWRITE_ORDERS_COLLECTION_ID
+ *
+ * GET /api/delivery?orderId=xxx&token=yyy
+ *   Returns { destination: { lat, lng }, orderNumber, status }. If status was 'preparing', updates to 'delivering'.
+ *
+ * POST /api/delivery
+ *   Body: { orderId, token, action: 'update_location' | 'mark_delivered', lat?, lng? }
+ *   update_location: sends driver location; if distance to customer <= 500m, sets deliveryNearAt. Returns { distanceKm, nearAt, status }.
+ *   mark_delivered: if deliveryNearAt exists and >= 15 min ago, sets orderStatus to 'completed'. Returns { success }.
+ */
+
 import { Client, Databases, Query } from 'node-appwrite';
 
 const NEAR_RADIUS_KM = 0.5;       // 500 metres
@@ -20,8 +36,16 @@ function getAppwrite() {
   const apiKey = process.env.APPWRITE_API_KEY;
   const databaseId = process.env.APPWRITE_DATABASE_ID;
   const orderCollectionId = process.env.APPWRITE_ORDERS_COLLECTION_ID;
-  if (!endpoint || !projectId || !apiKey || !databaseId || !orderCollectionId) {
-    throw new Error('Missing Appwrite env vars');
+  const missing = [];
+  if (!endpoint) missing.push('APPWRITE_ENDPOINT');
+  if (!projectId) missing.push('APPWRITE_PROJECT_ID');
+  if (!apiKey) missing.push('APPWRITE_API_KEY');
+  if (!databaseId) missing.push('APPWRITE_DATABASE_ID');
+  if (!orderCollectionId) missing.push('APPWRITE_ORDERS_COLLECTION_ID');
+  if (missing.length) {
+    const msg = 'Missing Appwrite env vars: ' + missing.join(', ');
+    console.error('delivery-track-api:', msg);
+    throw new Error(msg);
   }
   const client = new Client().setEndpoint(endpoint).setProject(projectId).setKey(apiKey);
   const databases = new Databases(client);
@@ -44,6 +68,8 @@ function corsHeaders(origin = '*') {
 
 export default async function handler(req, res) {
   const origin = req.headers.origin || '*';
+  const orderId = req.method === 'GET' ? req.query.orderId : req.body?.orderId;
+  console.log('delivery-track-api', req.method, orderId ? 'orderId=' + orderId : 'no orderId');
   if (req.method === 'OPTIONS') {
     res.setHeader('Access-Control-Allow-Origin', origin);
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -137,9 +163,11 @@ export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', origin);
     return res.status(400).json({ error: 'Invalid action' });
   } catch (e) {
-    console.error('delivery-track-api', e);
+    console.error('delivery-track-api error:', e.message || e);
+    if (e.code !== undefined) console.error('delivery-track-api code:', e.code);
     res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
     if (e.code === 404) return res.status(404).json({ error: 'Order not found' });
-    return res.status(500).json({ error: e.message || 'Server error' });
+    const message = e.message || 'Server error';
+    return res.status(500).json({ error: message });
   }
 }
