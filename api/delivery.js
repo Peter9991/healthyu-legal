@@ -1,3 +1,19 @@
+/**
+ * Delivery tracking API for HealthyU.
+ * Deploy to Vercel: project root = delivery-track-api, so route is /api/delivery.
+ *
+ * Env (Vercel): APPWRITE_ENDPOINT, APPWRITE_PROJECT_ID, APPWRITE_API_KEY,
+ *   APPWRITE_DATABASE_ID, APPWRITE_ORDERS_COLLECTION_ID
+ *
+ * GET /api/delivery?orderId=xxx&token=yyy
+ *   Returns { destination: { lat, lng }, orderNumber, status }. If status was 'preparing', updates to 'delivering'.
+ *
+ * POST /api/delivery
+ *   Body: { orderId, token, action: 'update_location' | 'mark_delivered', lat?, lng? }
+ *   update_location: sends driver location; if distance to customer <= 500m, sets deliveryNearAt. Returns { distanceKm, nearAt, status }.
+ *   mark_delivered: if deliveryNearAt exists and >= 15 min ago, sets orderStatus to 'completed'. Returns { success }.
+ */
+
 import { Client, Databases, Query } from 'node-appwrite';
 
 const NEAR_RADIUS_KM = 0.5;       // 500 metres
@@ -90,6 +106,7 @@ export default async function handler(req, res) {
       if (status === 'preparing') {
         await databases.updateDocument(databaseId, orderCollectionId, orderId, {
           orderStatus: 'delivering',
+          deliveringAt: new Date().toISOString(),
         });
       }
       let items = [];
@@ -173,6 +190,7 @@ export default async function handler(req, res) {
       }
       await databases.updateDocument(databaseId, orderCollectionId, orderId, {
         orderStatus: 'completed',
+        completedAt: new Date().toISOString(),
       });
       res.setHeader('Access-Control-Allow-Origin', origin);
       return res.status(200).json({ success: true });
