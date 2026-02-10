@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#6D28D9">
+  <title>HealthyU – Delivery</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      margin: 0;
+      padding: 16px;
+      background: #f8fafc;
+      color: #1e293b;
+      min-height: 100vh;
+    }
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+    h1 { font-size: 1.25rem; margin: 0 0 8px 0; color: #334155; }
+    .status { font-size: 0.9rem; color: #64748b; margin-bottom: 12px; }
+    .distance { font-size: 1.1rem; font-weight: 600; color: #6D28D9; }
+    .countdown {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #059669;
+      text-align: center;
+      padding: 16px;
+      margin: 12px 0;
+      background: #ecfdf5;
+      border-radius: 8px;
+    }
+    .error { color: #dc2626; background: #fef2f2; padding: 12px; border-radius: 8px; margin: 8px 0; }
+    .btn {
+      display: inline-block;
+      padding: 12px 20px;
+      background: #6D28D9;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 8px;
+    }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .btn.done { background: #059669; }
+    .small { font-size: 0.85rem; color: #64748b; margin-top: 8px; }
+    #allowLocation { margin-top: 16px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>HealthyU Delivery</h1>
+    <p class="status" id="status">Loading…</p>
+    <p class="distance" id="distance"></p>
+    <div id="countdownBox" style="display: none;">
+      <p class="small">You're near the customer. After this countdown the order will be marked as delivered.</p>
+      <p class="countdown" id="countdown">–</p>
+      <button class="btn done" id="markDelivered" style="display: none;">Mark as delivered</button>
+    </div>
+    <div id="allowLocation" style="display: none;">
+      <button class="btn" id="allowBtn">Allow location</button>
+    </div>
+    <p class="error" id="err" style="display: none;"></p>
+  </div>
+
+  <script>
+    (function () {
+      const params = new URLSearchParams(window.location.search);
+      const orderId = params.get('orderId');
+      const token = params.get('token');
+      const statusEl = document.getElementById('status');
+      const distanceEl = document.getElementById('distance');
+      const countdownBox = document.getElementById('countdownBox');
+      const countdownEl = document.getElementById('countdown');
+      const markDeliveredBtn = document.getElementById('markDelivered');
+      const allowLocationBox = document.getElementById('allowLocation');
+      const allowBtn = document.getElementById('allowBtn');
+      const errEl = document.getElementById('err');
+
+      const API_BASE = window.location.origin;
+      const NEAR_KM = 0.2;
+      const COUNTDOWN_MINUTES = 10;
+
+      function showErr(msg) {
+        errEl.textContent = msg;
+        errEl.style.display = 'block';
+      }
+
+      function setStatus(text) {
+        statusEl.textContent = text;
+      }
+
+      if (!orderId || !token) {
+        setStatus('Invalid link');
+        showErr('Missing orderId or token in the URL.');
+        return;
+      }
+
+      let destination = null;
+      let nearAt = null;
+      let watchId = null;
+
+      function apiGet() {
+        return fetch(API_BASE + '/api/delivery?orderId=' + encodeURIComponent(orderId) + '&token=' + encodeURIComponent(token))
+          .then(function (r) {
+            if (!r.ok) throw new Error(r.status === 403 ? 'Invalid link' : r.status === 404 ? 'Order not found' : 'Request failed');
+            return r.json();
+          });
+      }
+
+      function apiPost(body) {
+        return fetch(API_BASE + '/api/delivery', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        }).then(function (r) {
+          if (!r.ok) return r.json().then(function (j) { throw new Error(j.error || 'Request failed'); });
+          return r.json();
+        });
+      }
+
+      function startCountdown() {
+        if (!nearAt) return;
+        countdownBox.style.display = 'block';
+        var end = new Date(nearAt).getTime() + COUNTDOWN_MINUTES * 60 * 1000;
+
+        function tick() {
+          var now = Date.now();
+          if (now >= end) {
+            countdownEl.textContent = 'Done';
+            markDeliveredBtn.style.display = 'block';
+            markDeliveredBtn.onclick = function () {
+              markDeliveredBtn.disabled = true;
+              markDeliveredBtn.textContent = 'Marking…';
+              apiPost({ orderId: orderId, token: token, action: 'mark_delivered' })
+                .then(function () {
+                  setStatus('Order marked as delivered.');
+                  countdownEl.textContent = 'Delivered';
+                  markDeliveredBtn.textContent = 'Delivered';
+                })
+                .catch(function (e) {
+                  showErr(e.message);
+                  markDeliveredBtn.disabled = false;
+                  markDeliveredBtn.textContent = 'Mark as delivered';
+                });
+            };
+            return;
+          }
+          var s = Math.ceil((end - now) / 1000);
+          var m = Math.floor(s / 60);
+          s = s % 60;
+          countdownEl.textContent = m + ':' + (s < 10 ? '0' : '') + s;
+          setTimeout(tick, 1000);
+        }
+        tick();
+      }
+
+      function onLocation(lat, lng) {
+        apiPost({
+          orderId: orderId,
+          token: token,
+          action: 'update_location',
+          lat: lat,
+          lng: lng,
+        })
+          .then(function (data) {
+            var dist = data.distanceKm != null ? data.distanceKm : null;
+            if (dist != null) {
+              if (dist < 0.5) {
+                distanceEl.textContent = 'About ' + Math.round(dist * 1000) + ' m from customer';
+              } else {
+                distanceEl.textContent = 'About ' + (dist < 1 ? (dist * 1000).toFixed(0) + ' m' : dist.toFixed(2) + ' km') + ' from customer';
+              }
+            }
+            if (data.nearAt && !nearAt) {
+              nearAt = data.nearAt;
+              startCountdown();
+            }
+          })
+          .catch(function () {});
+      }
+
+      allowBtn.onclick = function () {
+        setStatus('Getting location…');
+        allowLocationBox.style.display = 'none';
+        if (!navigator.geolocation) {
+          showErr('Geolocation is not supported.');
+          return;
+        }
+        navigator.geolocation.getCurrentPosition(
+          function (pos) {
+            setStatus('Tracking delivery…');
+            onLocation(pos.coords.latitude, pos.coords.longitude);
+            watchId = navigator.geolocation.watchPosition(
+              function (p) { onLocation(p.coords.latitude, p.coords.longitude); },
+              function () {},
+              { enableHighAccuracy: true, maximumAge: 20000, timeout: 10000 }
+            );
+          },
+          function (err) {
+            showErr('Location denied or unavailable. Please allow location and refresh.');
+            allowLocationBox.style.display = 'block';
+          },
+          { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+        );
+      };
+
+      apiGet()
+        .then(function (data) {
+          destination = data.destination;
+          setStatus('Order #' + (data.orderNumber || orderId) + ' – ' + (data.status === 'delivering' ? 'Delivering' : data.status));
+          if (!destination) {
+            showErr('This order has no delivery address.');
+            return;
+          }
+          allowLocationBox.style.display = 'block';
+          setStatus('Order #' + (data.orderNumber || orderId) + ' – Allow location to track delivery.');
+        })
+        .catch(function (e) {
+          setStatus('Error');
+          showErr(e.message);
+        });
+    })();
+  </script>
+</body>
+</html>
