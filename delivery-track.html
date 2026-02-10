@@ -21,6 +21,7 @@
     .header {
       text-align: center;
       padding: 24px 0 20px;
+      margin-top: 52px;
     }
     .logo {
       height: 44px;
@@ -107,9 +108,9 @@
       right: 12px;
       z-index: 10;
       display: flex;
-      gap: 4px;
+      gap: 6px;
       background: #fff;
-      padding: 4px;
+      padding: 6px 8px;
       border-radius: 10px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     }
@@ -290,13 +291,22 @@
         if (openMapsBtn.textContent) openMapsBtn.textContent = t('getDirections');
       }
       function escapeHtml(s) { return String(s).replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+      function formatPhoneDisplay(phone) {
+        var p = String(phone).replace(/\s/g, '').replace(/^\+/, '');
+        if (p.indexOf('20') === 0) p = '0' + p.slice(2);
+        return p;
+      }
       function renderCustomer(customer, destination) {
         var hasDestination = destination && destination.lat != null && destination.lng != null;
         if (!customer && !hasDestination) { customerBox.style.display = 'none'; return; }
         customerTitle.textContent = t('customerDetails');
         var parts = [];
         if (customer && customer.name) parts.push('<div class="customer-line"><strong>' + t('name') + ':</strong> ' + escapeHtml(customer.name) + '</div>');
-        if (customer && customer.phone) parts.push('<div class="customer-line"><strong>' + t('phone') + ':</strong> <a href="tel:' + String(customer.phone).replace(/[^0-9+]/g, '') + '">' + escapeHtml(customer.phone) + '</a></div>');
+        if (customer && customer.phone) {
+          var phoneDisplay = formatPhoneDisplay(customer.phone);
+          var phoneTel = phoneDisplay.replace(/\D/g, '');
+          parts.push('<div class="customer-line"><strong>' + t('phone') + ':</strong> <a href="tel:' + phoneTel + '">' + escapeHtml(phoneDisplay) + '</a></div>');
+        }
         if (customer && customer.address) parts.push('<div class="customer-line"><strong>' + t('address') + ':</strong> ' + escapeHtml(customer.address) + '</div>');
         if (customer && customer.apartment) parts.push('<div class="customer-line"><strong>' + t('apartment') + ':</strong> ' + escapeHtml(customer.apartment) + '</div>');
         if (customer && customer.floor) parts.push('<div class="customer-line"><strong>' + t('floor') + ':</strong> ' + escapeHtml(customer.floor) + '</div>');
