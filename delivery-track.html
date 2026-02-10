@@ -163,7 +163,7 @@
         <div id="customerContent"></div>
         <a href="#" class="btn-maps" id="openMapsBtn" style="display: none;"></a>
       </div>
-      <p class="distance" id="distance"></p>
+      <p class="distance" id="distance" style="display: none;"></p>
       <div class="countdown-box" id="countdownBox">
         <p class="countdown-desc" id="countdownDesc"></p>
         <p class="countdown" id="countdown">–</p>
@@ -332,9 +332,11 @@
       document.getElementById('langAr').onclick = function () { setLang('ar'); };
 
       function shortOrderRef(orderNumber, id) {
-        if (orderNumber && orderNumber.length <= 12) return orderNumber;
-        if (orderNumber && /#?\d{4,}$/.test(orderNumber)) return orderNumber.replace(/^.*?(\d{4,})$/, '#$1');
-        return '#' + (id || orderId || '').slice(-6);
+        var ref = '';
+        if (orderNumber && orderNumber.length <= 12) ref = orderNumber;
+        else if (orderNumber && /#?\d{4,}$/.test(orderNumber)) ref = orderNumber.replace(/^.*?(\d{4,})$/, '#$1');
+        else ref = '#' + (id || orderId || '').slice(-6);
+        return ref && ref.charAt(0) !== '#' ? '#' + ref : ref;
       }
 
       function showErr(msg) {
@@ -422,6 +424,7 @@
             if (dist != null) {
               var distStr = dist < 0.5 ? Math.round(dist * 1000) + ' ' + t('m') : (dist < 1 ? (dist * 1000).toFixed(0) + ' ' + t('m') : dist.toFixed(2) + ' ' + t('km'));
               distanceEl.textContent = t('distanceFrom').replace('{{dist}}', distStr);
+              distanceEl.style.display = 'block';
             }
             if (data.nearAt && !nearAt) { nearAt = data.nearAt; startCountdown(); }
           })
