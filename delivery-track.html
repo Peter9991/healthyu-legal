@@ -289,18 +289,25 @@
         if (customerTitle.textContent) customerTitle.textContent = t('customerDetails');
         if (openMapsBtn.textContent) openMapsBtn.textContent = t('getDirections');
       }
+      function escapeHtml(s) { return String(s).replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
       function renderCustomer(customer, destination) {
-        if (!customer && !destination) { customerBox.style.display = 'none'; return; }
+        var hasDestination = destination && destination.lat != null && destination.lng != null;
+        if (!customer && !hasDestination) { customerBox.style.display = 'none'; return; }
         customerTitle.textContent = t('customerDetails');
         var parts = [];
-        if (customer && customer.name) parts.push('<div class="customer-line"><strong>' + t('name') + ':</strong> ' + String(customer.name).replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</div>');
-        if (customer && customer.phone) parts.push('<div class="customer-line"><strong>' + t('phone') + ':</strong> <a href="tel:' + String(customer.phone).replace(/[^0-9+]/g, '') + '">' + String(customer.phone).replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</a></div>');
-        if (customer && customer.address) parts.push('<div class="customer-line"><strong>' + t('address') + ':</strong> ' + String(customer.address).replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</div>');
-        if (customer && customer.apartment) parts.push('<div class="customer-line"><strong>' + t('apartment') + ':</strong> ' + String(customer.apartment).replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</div>');
-        if (customer && customer.floor) parts.push('<div class="customer-line"><strong>' + t('floor') + ':</strong> ' + String(customer.floor).replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</div>');
-        if (customer && customer.instructions) parts.push('<div class="customer-line"><strong>' + t('instructions') + ':</strong> ' + String(customer.instructions).replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</div>');
-        customerContent.innerHTML = parts.length ? parts.join('') : '<div class="customer-line">' + (lang === 'ar' ? 'لا توجد بيانات عميل' : 'No customer details') + '</div>';
-        if (destination && destination.lat != null && destination.lng != null) {
+        if (customer && customer.name) parts.push('<div class="customer-line"><strong>' + t('name') + ':</strong> ' + escapeHtml(customer.name) + '</div>');
+        if (customer && customer.phone) parts.push('<div class="customer-line"><strong>' + t('phone') + ':</strong> <a href="tel:' + String(customer.phone).replace(/[^0-9+]/g, '') + '">' + escapeHtml(customer.phone) + '</a></div>');
+        if (customer && customer.address) parts.push('<div class="customer-line"><strong>' + t('address') + ':</strong> ' + escapeHtml(customer.address) + '</div>');
+        if (customer && customer.apartment) parts.push('<div class="customer-line"><strong>' + t('apartment') + ':</strong> ' + escapeHtml(customer.apartment) + '</div>');
+        if (customer && customer.floor) parts.push('<div class="customer-line"><strong>' + t('floor') + ':</strong> ' + escapeHtml(customer.floor) + '</div>');
+        if (customer && customer.instructions) parts.push('<div class="customer-line"><strong>' + t('instructions') + ':</strong> ' + escapeHtml(customer.instructions) + '</div>');
+        if (parts.length === 0 && hasDestination) {
+          parts.push('<div class="customer-line">' + (lang === 'ar' ? 'استخدم الزر أدناه لفتح موقع التوصيل في الخرائط.' : 'Use the button below to open the delivery location in Maps.') + '</div>');
+        } else if (parts.length === 0) {
+          parts.push('<div class="customer-line">' + (lang === 'ar' ? 'لا توجد بيانات عميل' : 'No customer details') + '</div>');
+        }
+        customerContent.innerHTML = parts.join('');
+        if (hasDestination) {
           openMapsBtn.href = 'https://www.google.com/maps/dir/?api=1&destination=' + destination.lat + ',' + destination.lng;
           openMapsBtn.textContent = t('getDirections');
           openMapsBtn.style.display = 'inline-flex';
