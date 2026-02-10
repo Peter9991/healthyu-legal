@@ -102,6 +102,50 @@
     .btn-primary { background: #22c55e; color: #fff; }
     .btn-done { background: #059669; color: #fff; }
     #allowLocation { margin-top: 16px; }
+    .location-required-card {
+      background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+      border: 2px solid #22c55e;
+      border-radius: 16px;
+      padding: 20px;
+      margin: 16px 0;
+      text-align: center;
+    }
+    .location-required-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #166534;
+      margin: 0 0 8px 0;
+    }
+    .location-required-desc {
+      font-size: 0.95rem;
+      color: #15803d;
+      margin: 0 0 16px 0;
+      line-height: 1.5;
+    }
+    .btn-location {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      padding: 18px 24px;
+      background: #22c55e;
+      color: #fff;
+      border: none;
+      border-radius: 14px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(34, 197, 94, 0.4);
+      animation: pulse-ring 2s ease-in-out infinite;
+    }
+    .btn-location:hover { background: #16a34a; }
+    .btn-location:active { transform: scale(0.98); }
+    @keyframes pulse-ring {
+      0%, 100% { box-shadow: 0 4px 14px rgba(34, 197, 94, 0.4); }
+      50% { box-shadow: 0 4px 20px rgba(34, 197, 94, 0.6); }
+    }
+    .location-icon { font-size: 1.4rem; }
     .lang-toggle {
       position: fixed;
       top: 12px;
@@ -171,7 +215,14 @@
         <button class="btn btn-done" id="markDelivered" style="display: none;"></button>
       </div>
       <div id="allowLocation" style="display: none;">
-        <button class="btn btn-primary" id="allowBtn"></button>
+        <div class="location-required-card">
+          <p class="location-required-title" id="locationRequiredTitle"></p>
+          <p class="location-required-desc" id="locationRequiredDesc"></p>
+          <button class="btn-location" id="allowBtn" type="button">
+            <span class="location-icon" aria-hidden="true">📍</span>
+            <span id="allowBtnText"></span>
+          </button>
+        </div>
       </div>
       <p class="error" id="err" style="display: none;"></p>
     </div>
@@ -210,8 +261,10 @@
           loading: 'Loading…',
           invalidLink: 'Invalid link',
           missingParams: 'Missing orderId or token in the URL.',
-          allowLocation: 'Allow location',
+          allowLocation: 'Turn on location',
           allowLocationDesc: 'Allow location to track delivery.',
+          locationRequiredTitle: 'Share your location (required)',
+          locationRequiredDesc: 'The customer can see where you are on the map only after you turn on location. Tap the button below now.',
           gettingLocation: 'Getting location…',
           trackingDelivery: 'Tracking delivery…',
           nearDesc: 'You\'re near the customer. After this countdown the order will be marked as delivered.',
@@ -243,8 +296,10 @@
           loading: 'جاري التحميل…',
           invalidLink: 'رابط غير صالح',
           missingParams: 'معرّف الطلب أو الرمز مفقود في الرابط.',
-          allowLocation: 'السماح بالموقع',
+          allowLocation: 'تشغيل الموقع',
           allowLocationDesc: 'السماح بالموقع لتتبع التوصيل.',
+          locationRequiredTitle: 'شارك موقعك (مطلوب)',
+          locationRequiredDesc: 'يستطيع العميل رؤية موقعك على الخريطة فقط بعد تشغيل الموقع. اضغط الزر أدناه الآن.',
           gettingLocation: 'جاري الحصول على الموقع…',
           trackingDelivery: 'جاري تتبع التوصيل…',
           nearDesc: 'أنت قريب من العميل. بعد هذا العد التنازلي سيتم اعتبار الطلب مُسلّماً.',
@@ -281,7 +336,12 @@
         document.body.classList.toggle('rtl', lang === 'ar');
         document.querySelector('#langEn').classList.toggle('active', lang === 'en');
         document.querySelector('#langAr').classList.toggle('active', lang === 'ar');
-        if (allowBtn.textContent) allowBtn.textContent = t('allowLocation');
+        var btnText = document.getElementById('allowBtnText');
+        if (btnText) btnText.textContent = t('allowLocation');
+        var locTitle = document.getElementById('locationRequiredTitle');
+        if (locTitle) locTitle.textContent = t('locationRequiredTitle');
+        var locDesc = document.getElementById('locationRequiredDesc');
+        if (locDesc) locDesc.textContent = t('locationRequiredDesc');
         if (markDeliveredBtn.textContent && markDeliveredBtn.textContent !== '–') {
           markDeliveredBtn.textContent = markDeliveredBtn.textContent === 'Delivered' || markDeliveredBtn.textContent === 'Marking…' ? t(markDeliveredBtn.textContent === 'Marking…' ? 'marking' : 'delivered') : t('markDelivered');
         }
@@ -441,11 +501,10 @@
           .catch(function () {});
       }
 
-      allowBtn.textContent = t('allowLocation');
-      allowBtn.onclick = function () {
+      function requestLocation() {
         setStatus(t('gettingLocation'));
         allowLocationBox.style.display = 'none';
-        if (!navigator.geolocation) { showErr(t('geolocationNotSupported')); return; }
+        if (!navigator.geolocation) { showErr(t('geolocationNotSupported')); allowLocationBox.style.display = 'block'; return; }
         navigator.geolocation.getCurrentPosition(
           function (pos) {
             setStatus(t('trackingDelivery'));
@@ -459,7 +518,11 @@
           function () { showErr(t('locationDenied')); allowLocationBox.style.display = 'block'; },
           { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
         );
-      };
+      }
+
+      var allowBtnText = document.getElementById('allowBtnText');
+      if (allowBtnText) allowBtnText.textContent = t('allowLocation');
+      allowBtn.onclick = function () { requestLocation(); };
 
       apiGet()
         .then(function (data) {
@@ -472,7 +535,17 @@
           setStatus(currentOrderRef + ' – ' + (data.status === 'delivering' ? t('delivering') : data.status));
           if (!destination) { showErr(t('noAddress')); return; }
           allowLocationBox.style.display = 'block';
-          setStatus(currentOrderRef + ' – ' + t('allowLocationDesc'));
+          var locTitle = document.getElementById('locationRequiredTitle');
+          var locDesc = document.getElementById('locationRequiredDesc');
+          if (locTitle) locTitle.textContent = t('locationRequiredTitle');
+          if (locDesc) locDesc.textContent = t('locationRequiredDesc');
+          if (allowBtnText) allowBtnText.textContent = t('allowLocation');
+          setStatus(currentOrderRef + ' – ' + t('locationRequiredDesc'));
+          // Try to request location automatically after a short delay (some browsers allow it; others require the button tap)
+          setTimeout(function () {
+            if (allowLocationBox.style.display === 'none') return;
+            requestLocation();
+          }, 500);
         })
         .catch(function (e) {
           setStatus(t('error'));
