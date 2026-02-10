@@ -103,12 +103,32 @@ export default async function handler(req, res) {
         quantity: it.quantity || 1,
         price: it.price != null ? it.price : null,
       }));
+      const trim = (v) => (v != null && String(v).trim() !== '' ? String(v).trim() : null);
+      const customerName = trim(order.customerName || order.userName || order.name);
+      const customerPhone = trim(order.phone || order.customerPhone);
+      let deliveryAddress = trim(order.deliveryAddress || order.address);
+      const apartment = trim(order.apartment);
+      const floor = trim(order.floor);
+      const deliveryInstructions = trim(order.deliveryInstructions);
+
+      if (!deliveryAddress && destLat != null && destLng != null) {
+        deliveryAddress = '(Use Get directions for delivery location)';
+      }
+
       res.setHeader('Access-Control-Allow-Origin', origin);
       return res.status(200).json({
         destination: destLat != null && destLng != null ? { lat: destLat, lng: destLng } : null,
         orderNumber: order.orderNumber || orderId,
         status: status === 'preparing' ? 'delivering' : status,
         items,
+        customer: {
+          name: customerName,
+          phone: customerPhone,
+          address: deliveryAddress,
+          apartment,
+          floor,
+          instructions: deliveryInstructions,
+        },
       });
     }
 
