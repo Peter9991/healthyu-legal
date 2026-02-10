@@ -1,7 +1,7 @@
 import { Client, Databases, Query } from 'node-appwrite';
 
-const NEAR_RADIUS_KM = 0.2;       // 200 metres
-const MIN_NEAR_MINUTES = 10;      // 10–15 min countdown; we use 10
+const NEAR_RADIUS_KM = 0.5;       // 500 metres
+const MIN_NEAR_MINUTES = 15;      // 15 min countdown before marking delivered
 
 function haversineKm(lat1, lon1, lat2, lon2) {
   const R = 6371;
