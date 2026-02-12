@@ -552,7 +552,10 @@
               { enableHighAccuracy: true, maximumAge: 20000, timeout: 10000 }
             );
           },
-          function () { window.location.reload(); },
+          function () {
+            allowLocationBox.style.display = 'block';
+            setStatus(currentOrderRef + ' – ' + t('locationRequiredDesc'));
+          },
           { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
         );
       }
@@ -561,7 +564,6 @@
       if (allowBtnText) allowBtnText.textContent = t('allowLocation');
       allowBtn.onclick = function () { requestLocation(); };
       if (refreshAfterDeniedBtn) refreshAfterDeniedBtn.onclick = function () { window.location.reload(); };
-      if (refreshThenTryBtn) refreshThenTryBtn.onclick = function () { window.location.reload(); };
 
       apiGet()
         .then(function (data) {
