@@ -562,7 +562,7 @@
 
       var allowBtnText = document.getElementById('allowBtnText');
       if (allowBtnText) allowBtnText.textContent = t('allowLocation');
-      allowBtn.onclick = function () { requestLocation(); };
+      allowBtn.onclick = function () { window.location.reload(); };
       if (refreshAfterDeniedBtn) refreshAfterDeniedBtn.onclick = function () { window.location.reload(); };
 
       apiGet()
