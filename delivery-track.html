@@ -85,6 +85,21 @@
       font-size: 0.9rem;
       border: 1px solid #fecaca;
     }
+    .btn-refresh {
+      display: block;
+      width: 100%;
+      padding: 12px 20px;
+      margin-top: 8px;
+      border: 2px solid #b91c1c;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      background: #fff;
+      color: #b91c1c;
+    }
+    .btn-refresh:hover { background: #fef2f2; }
+    .btn-refresh:active { transform: scale(0.98); }
     .btn {
       display: block;
       width: 100%;
@@ -207,6 +222,17 @@
     <div class="card">
       <div class="order-badge" id="orderBadge" style="display: none;"></div>
       <p class="status" id="status">جاري التحميل…</p>
+      <div id="allowLocation" style="display: none;">
+        <div class="location-required-card">
+          <p class="location-required-headline" id="locationRequiredHeadline"></p>
+          <p class="location-required-title" id="locationRequiredTitle"></p>
+          <p class="location-required-desc" id="locationRequiredDesc"></p>
+          <button class="btn-location" id="allowBtn" type="button">
+            <span class="location-icon" aria-hidden="true">📍</span>
+            <span id="allowBtnText"></span>
+          </button>
+        </div>
+      </div>
       <div class="order-items-box" id="orderItemsBox">
         <p class="order-items-title" id="orderItemsTitle"></p>
         <div id="orderItemsList"></div>
@@ -222,18 +248,8 @@
         <p class="countdown" id="countdown">–</p>
         <button class="btn btn-done" id="markDelivered" style="display: none;"></button>
       </div>
-      <div id="allowLocation" style="display: none;">
-        <div class="location-required-card">
-          <p class="location-required-headline" id="locationRequiredHeadline"></p>
-          <p class="location-required-title" id="locationRequiredTitle"></p>
-          <p class="location-required-desc" id="locationRequiredDesc"></p>
-          <button class="btn-location" id="allowBtn" type="button">
-            <span class="location-icon" aria-hidden="true">📍</span>
-            <span id="allowBtnText"></span>
-          </button>
-        </div>
-      </div>
       <p class="error" id="err" style="display: none;"></p>
+      <button type="button" class="btn-refresh" id="refreshAfterDenied" style="display: none;"></button>
     </div>
   </div>
 
@@ -251,6 +267,7 @@
       const allowLocationBox = document.getElementById('allowLocation');
       const allowBtn = document.getElementById('allowBtn');
       const errEl = document.getElementById('err');
+      const refreshAfterDeniedBtn = document.getElementById('refreshAfterDenied');
       const orderBadge = document.getElementById('orderBadge');
       const orderItemsBox = document.getElementById('orderItemsBox');
       const orderItemsTitle = document.getElementById('orderItemsTitle');
@@ -274,7 +291,7 @@
           allowLocationDesc: 'Allow location to track delivery.',
           locationRequiredHeadline: 'Please allow your location for a better experience and tracking.',
           locationRequiredTitle: 'Share your location (required)',
-          locationRequiredDesc: 'The customer can see where you are on the map only after you turn on location. Tap the button below now.',
+          locationRequiredDesc: 'Location is required for a better experience and accurate tracking. Tap the button below to enable.',
           gettingLocation: 'Getting location…',
           trackingDelivery: 'Tracking delivery…',
           nearDesc: 'You\'re near the customer. After this countdown the order will be marked as delivered.',
@@ -286,7 +303,7 @@
           m: 'm',
           km: 'km',
           noAddress: 'This order has no delivery address.',
-          locationDenied: 'Location denied or unavailable. Please allow location and refresh.',
+          locationDenied: 'Location was denied. To allow: open your browser or device settings for this site, set Location to Allow, then refresh this page.',
           geolocationNotSupported: 'Geolocation is not supported.',
           order: 'Order',
           delivering: 'Delivering',
@@ -300,7 +317,8 @@
           floor: 'Floor',
           instructions: 'Instructions',
           openInMaps: 'Open in Maps',
-          getDirections: 'Get directions'
+          getDirections: 'Get directions',
+          refreshPage: 'Refresh page'
         },
         ar: {
           loading: 'جاري التحميل…',
@@ -310,7 +328,7 @@
           allowLocationDesc: 'السماح بالموقع لتتبع التوصيل.',
           locationRequiredHeadline: 'يرجى السماح بالموقع لتجربة أفضل وتتبع أدق.',
           locationRequiredTitle: 'شارك موقعك (مطلوب)',
-          locationRequiredDesc: 'يستطيع العميل رؤية موقعك على الخريطة فقط بعد تشغيل الموقع. اضغط الزر أدناه الآن.',
+          locationRequiredDesc: 'الموقع مطلوب لتجربة أفضل وتتبع أدق. اضغط الزر أدناه للسماح.',
           gettingLocation: 'جاري الحصول على الموقع…',
           trackingDelivery: 'جاري تتبع التوصيل…',
           nearDesc: 'أنت قريب من العميل. بعد هذا العد التنازلي سيتم اعتبار الطلب مُسلّماً.',
@@ -322,7 +340,7 @@
           m: 'م',
           km: 'كم',
           noAddress: 'هذا الطلب لا يحتوي على عنوان توصيل.',
-          locationDenied: 'تم رفض الموقع أو غير متاح. يرجى السماح بالموقع وتحديث الصفحة.',
+          locationDenied: 'تم رفض الموقع. للسماح: افتح إعدادات المتصفح أو الجهاز لهذا الموقع، فعّل الموقع، ثم حدّث الصفحة.',
           geolocationNotSupported: 'الموقع الجغرافي غير مدعوم.',
           order: 'طلب',
           delivering: 'جاري التوصيل',
@@ -336,7 +354,8 @@
           floor: 'الطابق',
           instructions: 'تعليمات التوصيل',
           openInMaps: 'فتح في الخرائط',
-          getDirections: 'الحصول على الاتجاهات'
+          getDirections: 'الحصول على الاتجاهات',
+          refreshPage: 'تحديث الصفحة'
         }
       };
 
@@ -362,6 +381,7 @@
         if (orderItemsTitle.textContent) orderItemsTitle.textContent = t('orderItems');
         if (customerTitle.textContent) customerTitle.textContent = t('customerDetails');
         if (openMapsBtn.textContent) openMapsBtn.textContent = t('getDirections');
+        if (refreshAfterDeniedBtn && refreshAfterDeniedBtn.style.display === 'block') refreshAfterDeniedBtn.textContent = t('refreshPage');
       }
       function escapeHtml(s) { return String(s).replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
       function formatPhoneDisplay(phone) {
@@ -422,9 +442,13 @@
         return ref && ref.charAt(0) !== '#' ? '#' + ref : ref;
       }
 
-      function showErr(msg) {
+      function showErr(msg, showRefreshButton) {
         errEl.textContent = msg;
         errEl.style.display = 'block';
+        if (refreshAfterDeniedBtn) {
+          refreshAfterDeniedBtn.style.display = showRefreshButton ? 'block' : 'none';
+          if (showRefreshButton) refreshAfterDeniedBtn.textContent = t('refreshPage');
+        }
       }
       function setStatus(text) { statusEl.textContent = text; }
 
@@ -528,7 +552,7 @@
               { enableHighAccuracy: true, maximumAge: 20000, timeout: 10000 }
             );
           },
-          function () { showErr(t('locationDenied')); allowLocationBox.style.display = 'block'; },
+          function () { showErr(t('locationDenied'), true); allowLocationBox.style.display = 'block'; },
           { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
         );
       }
@@ -536,6 +560,7 @@
       var allowBtnText = document.getElementById('allowBtnText');
       if (allowBtnText) allowBtnText.textContent = t('allowLocation');
       allowBtn.onclick = function () { requestLocation(); };
+      if (refreshAfterDeniedBtn) refreshAfterDeniedBtn.onclick = function () { window.location.reload(); };
 
       apiGet()
         .then(function (data) {
