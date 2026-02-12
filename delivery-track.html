@@ -110,6 +110,14 @@
       margin: 16px 0;
       text-align: center;
     }
+    .location-required-headline {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #14532d;
+      margin: 0 0 12px 0;
+      line-height: 1.35;
+      letter-spacing: 0.02em;
+    }
     .location-required-title {
       font-size: 1.15rem;
       font-weight: 800;
@@ -216,6 +224,7 @@
       </div>
       <div id="allowLocation" style="display: none;">
         <div class="location-required-card">
+          <p class="location-required-headline" id="locationRequiredHeadline"></p>
           <p class="location-required-title" id="locationRequiredTitle"></p>
           <p class="location-required-desc" id="locationRequiredDesc"></p>
           <button class="btn-location" id="allowBtn" type="button">
@@ -263,6 +272,7 @@
           missingParams: 'Missing orderId or token in the URL.',
           allowLocation: 'Turn on location',
           allowLocationDesc: 'Allow location to track delivery.',
+          locationRequiredHeadline: 'Please allow your location for a better experience and tracking.',
           locationRequiredTitle: 'Share your location (required)',
           locationRequiredDesc: 'The customer can see where you are on the map only after you turn on location. Tap the button below now.',
           gettingLocation: 'Getting location…',
@@ -298,6 +308,7 @@
           missingParams: 'معرّف الطلب أو الرمز مفقود في الرابط.',
           allowLocation: 'تشغيل الموقع',
           allowLocationDesc: 'السماح بالموقع لتتبع التوصيل.',
+          locationRequiredHeadline: 'يرجى السماح بالموقع لتجربة أفضل وتتبع أدق.',
           locationRequiredTitle: 'شارك موقعك (مطلوب)',
           locationRequiredDesc: 'يستطيع العميل رؤية موقعك على الخريطة فقط بعد تشغيل الموقع. اضغط الزر أدناه الآن.',
           gettingLocation: 'جاري الحصول على الموقع…',
@@ -338,6 +349,8 @@
         document.querySelector('#langAr').classList.toggle('active', lang === 'ar');
         var btnText = document.getElementById('allowBtnText');
         if (btnText) btnText.textContent = t('allowLocation');
+        var locHeadline = document.getElementById('locationRequiredHeadline');
+        if (locHeadline) locHeadline.textContent = t('locationRequiredHeadline');
         var locTitle = document.getElementById('locationRequiredTitle');
         if (locTitle) locTitle.textContent = t('locationRequiredTitle');
         var locDesc = document.getElementById('locationRequiredDesc');
@@ -535,8 +548,10 @@
           setStatus(currentOrderRef + ' – ' + (data.status === 'delivering' ? t('delivering') : data.status));
           if (!destination) { showErr(t('noAddress')); return; }
           allowLocationBox.style.display = 'block';
+          var locHeadlineEl = document.getElementById('locationRequiredHeadline');
           var locTitle = document.getElementById('locationRequiredTitle');
           var locDesc = document.getElementById('locationRequiredDesc');
+          if (locHeadlineEl) locHeadlineEl.textContent = t('locationRequiredHeadline');
           if (locTitle) locTitle.textContent = t('locationRequiredTitle');
           if (locDesc) locDesc.textContent = t('locationRequiredDesc');
           if (allowBtnText) allowBtnText.textContent = t('allowLocation');
