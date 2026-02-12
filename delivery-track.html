@@ -552,7 +552,12 @@
               { enableHighAccuracy: true, maximumAge: 20000, timeout: 10000 }
             );
           },
-          function () { showErr(t('locationDenied'), true); allowLocationBox.style.display = 'block'; },
+          function () {
+            errEl.style.display = 'none';
+            errEl.textContent = '';
+            if (refreshAfterDeniedBtn) refreshAfterDeniedBtn.style.display = 'none';
+            allowLocationBox.style.display = 'block';
+          },
           { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
         );
       }
