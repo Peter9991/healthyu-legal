@@ -9,7 +9,7 @@
   <meta http-equiv="X-XSS-Protection" content="1; mode=block">
   <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
   <meta http-equiv="Permissions-Policy" content="geolocation=(), microphone=(), camera=()">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https:; connect-src 'self' https://docs.google.com; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self' https://docs.google.com;">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https:; connect-src 'self' https://formspree.io; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self' https://formspree.io;">
   <meta http-equiv="Strict-Transport-Security" content="max-age=31536000; includeSubDomains; preload">
   <title>HealthyU | Healthy Eating in Egypt</title>
   <link rel="icon" type="image/png" href="favicon.png">
@@ -691,6 +691,24 @@
       font-size: 1.25rem;
     }
 
+    .form-error {
+      display: none;
+      margin: 14px 0 0;
+      color: #b42318;
+      font-weight: 700;
+      line-height: 1.5;
+    }
+
+    .form-error.is-visible {
+      display: block;
+    }
+
+    .field-hint {
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.4;
+    }
+
     .partner-copy {
       align-self: center;
     }
@@ -1056,26 +1074,24 @@
           <p>Join the healthy food platform helping Egyptians discover better meals and trusted wellness-focused brands.</p>
         </div>
         <div class="partner-card">
-          <form id="partner-form" action="https://docs.google.com/forms/d/e/1FAIpQLSe3VaV3SN6soXt9yrHgHibFqJSy_NU54xpFLxyxU3DMKoaI-g/formResponse" method="POST">
-            <input type="hidden" name="fvv" value="1">
-            <input type="hidden" name="pageHistory" value="0">
-            <input type="hidden" name="submit" value="Submit">
+          <form id="partner-form" action="https://formspree.io/f/mgodnyjv" method="POST">
             <div class="form-grid">
               <div class="form-field">
                 <label for="first-name">First Name</label>
-                <input id="first-name" name="entry.1943454345" type="text" autocomplete="given-name" required>
+                <input id="first-name" name="entry.1943454345" type="text" autocomplete="given-name" minlength="2" maxlength="50" pattern="[A-Za-z\u0600-\u06FF\s'-]{2,50}" title="Please enter a valid first name." required>
               </div>
               <div class="form-field">
                 <label for="last-name">Last Name</label>
-                <input id="last-name" name="entry.1226822235" type="text" autocomplete="family-name" required>
+                <input id="last-name" name="entry.1226822235" type="text" autocomplete="family-name" minlength="2" maxlength="50" pattern="[A-Za-z\u0600-\u06FF\s'-]{2,50}" title="Please enter a valid last name." required>
               </div>
               <div class="form-field full">
                 <label for="email">Email</label>
-                <input id="email" name="entry.641671600" type="email" autocomplete="email" required>
+                <input id="email" name="entry.641671600" type="email" autocomplete="email" maxlength="120" required>
               </div>
               <div class="form-field full">
                 <label for="phone">Phone Number</label>
-                <input id="phone" name="entry.295029254" type="tel" placeholder="+20 1XX XXX XXXX" autocomplete="tel" required>
+                <input id="phone" name="entry.295029254" type="tel" placeholder="01XXXXXXXXX" autocomplete="tel" inputmode="numeric" pattern="01[0-9]{9}" maxlength="11" title="Please enter a valid Egyptian mobile number, like 01XXXXXXXXX." required>
+                <span class="field-hint">Use an Egyptian mobile number, e.g. 01XXXXXXXXX.</span>
               </div>
               <div class="form-field full">
                 <label for="partner-type">Partner Type</label>
@@ -1088,7 +1104,7 @@
               </div>
               <div class="form-field full">
                 <label for="message">Message</label>
-                <textarea id="message" name="entry.836911257" placeholder="Tell us how you would like to partner with HealthyU."></textarea>
+                <textarea id="message" name="entry.836911257" placeholder="Tell us how you would like to partner with HealthyU." maxlength="1500"></textarea>
               </div>
               <div class="form-field full">
                 <button class="btn submit-btn" type="submit">Submit</button>
@@ -1098,6 +1114,7 @@
               <i class="fa-solid fa-envelope" aria-hidden="true"></i>
               yousef@healthyu.app
             </a>
+            <p class="form-error" id="partner-form-error" role="alert">Something went wrong, please try again.</p>
           </form>
           <div class="form-success" id="partner-form-success" role="status" aria-live="polite">
             <strong>Thanks for reaching out!</strong>
@@ -1165,6 +1182,7 @@
   <script>
     const partnerForm = document.getElementById("partner-form");
     const partnerFormSuccess = document.getElementById("partner-form-success");
+    const partnerFormError = document.getElementById("partner-form-error");
 
     function showPartnerFormSuccess() {
       partnerForm.reset();
@@ -1172,20 +1190,53 @@
       partnerFormSuccess.classList.add("is-visible");
     }
 
+    function showPartnerFormError() {
+      if (partnerFormError) {
+        partnerFormError.classList.add("is-visible");
+      }
+    }
+
+    function isValidEgyptianMobile(value) {
+      const normalized = value.replace(/\D/g, "");
+      return /^01[0-9]{9}$/.test(normalized);
+    }
+
     if (partnerForm && partnerFormSuccess) {
       partnerForm.addEventListener("submit", function(event) {
         event.preventDefault();
 
-        const formData = new FormData(partnerForm);
+        const phoneInput = document.getElementById("phone");
+        if (phoneInput && !isValidEgyptianMobile(phoneInput.value)) {
+          phoneInput.setCustomValidity("Please enter a valid Egyptian mobile number.");
+        } else if (phoneInput) {
+          phoneInput.setCustomValidity("");
+        }
 
-        fetch("https://docs.google.com/forms/d/e/1FAIpQLSe3VaV3SN6soXt9yrHgHibFqJSy_NU54xpFLxyxU3DMKoaI-g/formResponse", {
+        if (!partnerForm.checkValidity()) {
+          partnerForm.reportValidity();
+          return;
+        }
+
+        const formData = new FormData(partnerForm);
+        if (partnerFormError) {
+          partnerFormError.classList.remove("is-visible");
+        }
+
+        fetch("https://formspree.io/f/mgodnyjv", {
           method: "POST",
-          mode: "no-cors",
-          body: formData
-        }).then(function() {
-          showPartnerFormSuccess();
-        }).catch(function() {
-          showPartnerFormSuccess();
+          body: formData,
+          headers: { "Accept": "application/json" }
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.ok) {
+            showPartnerFormSuccess();
+          } else {
+            showPartnerFormError();
+          }
+        })
+        .catch(() => {
+          showPartnerFormError();
         });
       });
     }
