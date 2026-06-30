@@ -19,6 +19,13 @@
     .header { text-align: center; padding: 20px 0 16px; }
     .brand { font-size: 1.35rem; font-weight: 800; color: #166534; letter-spacing: -0.02em; }
     .subtitle { margin: 6px 0 0; font-size: 0.9rem; color: #64748b; }
+    .influencer-name {
+      margin-top: 10px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #0f172a;
+      text-align: center;
+    }
     .card {
       background: #fff;
       border-radius: 16px;
@@ -102,6 +109,7 @@
     <div class="header">
       <div class="brand">HealthyU</div>
       <p class="subtitle" id="pageSubtitle">Influencer promo tracking</p>
+      <p class="influencer-name hidden" id="influencerName"></p>
     </div>
 
     <div id="loading" class="loading">Loading stats…</div>
@@ -142,6 +150,7 @@
 
       var params = new URLSearchParams(window.location.search);
       var code = (params.get('code') || '').trim().toUpperCase();
+      var nameFromUrl = (params.get('name') || '').trim();
 
       var loadingEl = document.getElementById('loading');
       var errorEl = document.getElementById('error');
@@ -158,6 +167,21 @@
         loadingEl.classList.add('hidden');
         errorEl.classList.add('hidden');
         contentEl.classList.remove('hidden');
+
+        if (stats.isInfluencerPromo === false) {
+          showError('This promo code is not set up for influencer tracking.');
+          return;
+        }
+
+        var displayName = nameFromUrl || (stats.influencerName || '').trim();
+        var nameEl = document.getElementById('influencerName');
+        if (displayName) {
+          nameEl.textContent = displayName;
+          nameEl.classList.remove('hidden');
+          document.title = 'HealthyU – ' + displayName;
+        } else {
+          nameEl.classList.add('hidden');
+        }
 
         document.getElementById('promoCode').textContent = stats.code;
         document.getElementById('usageCount').textContent = String(stats.usageCount);
