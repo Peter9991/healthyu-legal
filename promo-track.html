@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <meta name="theme-color" content="#22c55e">
+  <title>HealthyU – Promo tracking</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(180deg, #f0fdf4 0%, #f8fafc 100%);
+      color: #1e293b;
+      min-height: 100vh;
+    }
+    .container { max-width: 440px; margin: 0 auto; padding: 24px 16px 40px; }
+    .header { text-align: center; padding: 20px 0 16px; }
+    .brand { font-size: 1.35rem; font-weight: 800; color: #166534; letter-spacing: -0.02em; }
+    .subtitle { margin: 6px 0 0; font-size: 0.9rem; color: #64748b; }
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 22px;
+      margin-bottom: 14px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+      border: 1px solid rgba(34, 197, 94, 0.14);
+    }
+    .code-badge {
+      display: inline-block;
+      background: #dcfce7;
+      color: #166534;
+      font-weight: 800;
+      font-size: 1.15rem;
+      padding: 8px 14px;
+      border-radius: 10px;
+      letter-spacing: 0.06em;
+    }
+    .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 18px; }
+    .stat-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 14px;
+      text-align: center;
+    }
+    .stat-label { font-size: 0.75rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600; }
+    .stat-value { margin-top: 6px; font-size: 1.45rem; font-weight: 800; color: #0f172a; }
+    .stat-value.profit { color: #059669; }
+    .formula {
+      margin-top: 14px;
+      padding: 12px;
+      background: #ecfdf5;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      color: #065f46;
+      line-height: 1.45;
+      text-align: center;
+    }
+    .desc { margin-top: 12px; font-size: 0.9rem; color: #475569; line-height: 1.45; }
+    .status-pill {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+    .status-on { background: #dcfce7; color: #166534; }
+    .status-off { background: #fee2e2; color: #b91c1c; }
+    .error {
+      color: #b91c1c;
+      background: #fef2f2;
+      padding: 14px;
+      border-radius: 12px;
+      border: 1px solid #fecaca;
+      font-size: 0.92rem;
+      line-height: 1.4;
+    }
+    .loading { text-align: center; padding: 40px 0; color: #64748b; }
+    .footer { text-align: center; font-size: 0.8rem; color: #94a3b8; margin-top: 20px; }
+    .btn {
+      display: block;
+      width: 100%;
+      margin-top: 14px;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      background: #22c55e;
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+    }
+    .btn:active { transform: scale(0.98); }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="brand">HealthyU</div>
+      <p class="subtitle" id="pageSubtitle">Influencer promo tracking</p>
+    </div>
+
+    <div id="loading" class="loading">Loading stats…</div>
+    <div id="error" class="error hidden"></div>
+
+    <div id="content" class="hidden">
+      <div class="card">
+        <div class="code-badge" id="promoCode">—</div>
+        <span id="statusPill" class="status-pill status-on hidden"></span>
+        <p id="description" class="desc hidden"></p>
+
+        <div class="stat-grid">
+          <div class="stat-box">
+            <div class="stat-label" id="usesLabel">Orders used</div>
+            <div class="stat-value" id="usageCount">0</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label" id="profitLabel">Your profit</div>
+            <div class="stat-value profit" id="profitEgp">0 EGP</div>
+          </div>
+        </div>
+
+        <div class="formula" id="formulaText">0 orders × 10 EGP = 0 EGP</div>
+      </div>
+
+      <button type="button" class="btn" id="refreshBtn">Refresh</button>
+    </div>
+
+    <p class="footer">Commission is calculated outside the app at 10 EGP per order.</p>
+  </div>
+
+  <script>
+    (function () {
+      var APPWRITE_ENDPOINT = 'https://fra.cloud.appwrite.io/v1';
+      var APPWRITE_PROJECT = '67e3118c001bb9d73782';
+      var FUNCTION_ID = '689f3de3003157f6597c';
+      var COMMISSION = 10;
+
+      var params = new URLSearchParams(window.location.search);
+      var code = (params.get('code') || '').trim().toUpperCase();
+
+      var loadingEl = document.getElementById('loading');
+      var errorEl = document.getElementById('error');
+      var contentEl = document.getElementById('content');
+
+      function showError(msg) {
+        loadingEl.classList.add('hidden');
+        contentEl.classList.add('hidden');
+        errorEl.textContent = msg;
+        errorEl.classList.remove('hidden');
+      }
+
+      function renderStats(stats) {
+        loadingEl.classList.add('hidden');
+        errorEl.classList.add('hidden');
+        contentEl.classList.remove('hidden');
+
+        document.getElementById('promoCode').textContent = stats.code;
+        document.getElementById('usageCount').textContent = String(stats.usageCount);
+        document.getElementById('profitEgp').textContent = stats.profitEgp.toFixed(0) + ' EGP';
+        document.getElementById('formulaText').textContent =
+          stats.usageCount + ' orders × ' + stats.commissionPerOrder + ' EGP = ' + stats.profitEgp.toFixed(0) + ' EGP';
+
+        var pill = document.getElementById('statusPill');
+        pill.textContent = stats.active ? 'Active' : 'Inactive';
+        pill.className = 'status-pill ' + (stats.active ? 'status-on' : 'status-off');
+        pill.classList.remove('hidden');
+
+        var desc = document.getElementById('description');
+        if (stats.description) {
+          desc.textContent = stats.description;
+          desc.classList.remove('hidden');
+        } else {
+          desc.classList.add('hidden');
+        }
+      }
+
+      function fetchStats() {
+        loadingEl.classList.remove('hidden');
+        errorEl.classList.add('hidden');
+        contentEl.classList.add('hidden');
+
+        if (!code || !/^[A-Z0-9]{1,20}$/.test(code)) {
+          showError('Missing or invalid promo code. Use: promo-track.html?code=YOURCODE');
+          return;
+        }
+
+        fetch(APPWRITE_ENDPOINT + '/functions/' + FUNCTION_ID + '/executions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Appwrite-Project': APPWRITE_PROJECT,
+          },
+          body: JSON.stringify({
+            body: JSON.stringify({
+              action: 'get_influencer_promo_stats',
+              promocode: code,
+              commissionPerOrder: COMMISSION,
+            }),
+            async: false,
+          }),
+        })
+          .then(function (r) { return r.json().then(function (data) { return { ok: r.ok, data: data }; }); })
+          .then(function (result) {
+            if (!result.ok) {
+              throw new Error(result.data.message || 'Request failed');
+            }
+            var execution = result.data;
+            if (execution.status !== 'completed' || !execution.responseBody) {
+              throw new Error('Stats service unavailable. Try again later.');
+            }
+            var parsed = JSON.parse(execution.responseBody);
+            if (!parsed.success || !parsed.stats) {
+              throw new Error(parsed.message || 'Promo code not found.');
+            }
+            renderStats(parsed.stats);
+          })
+          .catch(function (e) {
+            showError(e && e.message ? e.message : 'Failed to load stats.');
+          });
+      }
+
+      document.getElementById('refreshBtn').onclick = fetchStats;
+      fetchStats();
+    })();
+  </script>
+</body>
+</html>
