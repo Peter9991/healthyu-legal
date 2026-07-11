@@ -138,7 +138,7 @@
       <button type="button" class="btn" id="refreshBtn">Refresh</button>
     </div>
 
-    <p class="footer">Commission is calculated outside the app at 10 EGP per order.</p>
+    <p class="footer" id="footerText">Commission is set per influencer promo (5, 10, 15, or 20 EGP per order).</p>
   </div>
 
   <script>
@@ -146,7 +146,6 @@
       var APPWRITE_ENDPOINT = 'https://fra.cloud.appwrite.io/v1';
       var APPWRITE_PROJECT = '67e3118c001bb9d73782';
       var FUNCTION_ID = '689f3de3003157f6597c';
-      var COMMISSION = 10;
 
       var params = new URLSearchParams(window.location.search);
       var code = (params.get('code') || '').trim().toUpperCase();
@@ -188,6 +187,8 @@
         document.getElementById('profitEgp').textContent = stats.profitEgp.toFixed(0) + ' EGP';
         document.getElementById('formulaText').textContent =
           stats.usageCount + ' orders × ' + stats.commissionPerOrder + ' EGP = ' + stats.profitEgp.toFixed(0) + ' EGP';
+        document.getElementById('footerText').textContent =
+          'Commission for this promo: ' + stats.commissionPerOrder + ' EGP per order.';
 
         var pill = document.getElementById('statusPill');
         pill.textContent = stats.active ? 'Active' : 'Inactive';
@@ -213,21 +214,6 @@
           return;
         }
 
-        // TEMP screenshot demo — remove after photo (YoussefPromoCode / Youssef / 500 / 5000 EGP)
-        if (code === 'YOUSSEFPROMOCODE') {
-          renderStats({
-            code: 'YoussefPromoCode',
-            active: true,
-            description: '',
-            isInfluencerPromo: true,
-            influencerName: 'Youssef',
-            usageCount: 500,
-            commissionPerOrder: COMMISSION,
-            profitEgp: 5000,
-          });
-          return;
-        }
-
         fetch(APPWRITE_ENDPOINT + '/functions/' + FUNCTION_ID + '/executions', {
           method: 'POST',
           headers: {
@@ -238,7 +224,6 @@
             body: JSON.stringify({
               action: 'get_influencer_promo_stats',
               promocode: code,
-              commissionPerOrder: COMMISSION,
             }),
             async: false,
           }),
