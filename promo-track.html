@@ -137,8 +137,6 @@
 
       <button type="button" class="btn" id="refreshBtn">Refresh</button>
     </div>
-
-    <p class="footer" id="footerText">Commission is set per influencer promo (5, 10, 15, or 20 EGP per order).</p>
   </div>
 
   <script>
@@ -187,8 +185,6 @@
         document.getElementById('profitEgp').textContent = stats.profitEgp.toFixed(0) + ' EGP';
         document.getElementById('formulaText').textContent =
           stats.usageCount + ' orders × ' + stats.commissionPerOrder + ' EGP = ' + stats.profitEgp.toFixed(0) + ' EGP';
-        document.getElementById('footerText').textContent =
-          'Commission for this promo: ' + stats.commissionPerOrder + ' EGP per order.';
 
         var pill = document.getElementById('statusPill');
         pill.textContent = stats.active ? 'Active' : 'Inactive';
