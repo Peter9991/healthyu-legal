@@ -213,6 +213,21 @@
           return;
         }
 
+        // TEMP screenshot demo — remove after photo (YoussefPromoCode / Youssef / 500 / 5000 EGP)
+        if (code === 'YOUSSEFPROMOCODE') {
+          renderStats({
+            code: 'YoussefPromoCode',
+            active: true,
+            description: '',
+            isInfluencerPromo: true,
+            influencerName: 'Youssef',
+            usageCount: 500,
+            commissionPerOrder: COMMISSION,
+            profitEgp: 5000,
+          });
+          return;
+        }
+
         fetch(APPWRITE_ENDPOINT + '/functions/' + FUNCTION_ID + '/executions', {
           method: 'POST',
           headers: {
