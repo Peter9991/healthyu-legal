@@ -185,6 +185,110 @@
       font-weight: 700;
       background: #e5e7eb;
     }
+    .admin-order-card {
+      background: #fff;
+      border-radius: 14px;
+      margin-bottom: 12px;
+      border: 1px solid #e5e7eb;
+      overflow: hidden;
+    }
+    .ao-status-strip { height: 4px; width: 100%; }
+    .ao-body { padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+    .ao-top { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
+    .ao-top-left { flex: 1; min-width: 0; }
+    .ao-top-right { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+    .ao-restaurant { font-size: 13px; font-weight: 500; color: #6b7280; margin: 0; }
+    .ao-branch { display: flex; align-items: center; gap: 4px; margin-top: 2px; font-size: 13px; font-weight: 600; color: #2563eb; }
+    .ao-customer { font-size: 18px; font-weight: 700; color: #111827; margin: 2px 0 0; }
+    .ao-status-pill {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 4px 8px; border-radius: 20px; font-size: 11px; font-weight: 600;
+    }
+    .ao-status-dot { width: 6px; height: 6px; border-radius: 50%; }
+    .ao-total { font-size: 17px; font-weight: 700; color: #059669; margin: 0; }
+    .ao-meta { display: flex; flex-wrap: wrap; gap: 6px; }
+    .ao-chip {
+      display: inline-flex; align-items: center; gap: 4px;
+      background: #f3f4f6; padding: 5px 8px; border-radius: 8px;
+      font-size: 11px; font-weight: 500; color: #4b5563;
+    }
+    .ao-phone {
+      display: inline-flex; align-items: center; gap: 8px; align-self: flex-start;
+      background: #ecfdf5; padding: 8px 12px; border-radius: 10px;
+      border: 1px solid #a7f3d0; color: #059669; font-size: 13px; font-weight: 600;
+      text-decoration: none; cursor: pointer;
+    }
+    .ao-phone:hover { background: #d1fae5; }
+    .ao-items-preview {
+      background: #f9fafb; border-radius: 10px; padding: 10px;
+      display: flex; flex-direction: column; gap: 4px;
+    }
+    .ao-item-line { font-size: 13px; color: #374151; }
+    .ao-items-more { font-size: 12px; font-weight: 500; color: #9ca3af; margin-top: 2px; }
+    .ao-details-btn {
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      width: 100%; padding: 11px; border-radius: 10px;
+      background: #f8fafc; border: 1px solid #e2e8f0;
+      color: #3b82f6; font-size: 14px; font-weight: 600; cursor: pointer;
+    }
+    .ao-details-btn.active { background: #eff6ff; border-color: #bfdbfe; color: #1d4ed8; }
+    .ao-expanded {
+      border-top: 1px solid #e5e7eb; background: #fafafa;
+    }
+    .ao-section {
+      padding: 12px 14px; border-bottom: 1px solid #f3f4f6;
+    }
+    .ao-section:last-child { border-bottom: none; }
+    .ao-section-title {
+      font-size: 12px; font-weight: 600; color: #9ca3af;
+      text-transform: uppercase; letter-spacing: 0.4px; margin: 0 0 10px;
+    }
+    .ao-address-box {
+      display: flex; gap: 10px; background: #fff; border-radius: 10px;
+      padding: 12px; border: 1px solid #e5e7eb;
+    }
+    .ao-address-text { font-size: 14px; font-weight: 500; color: #111827; line-height: 1.4; margin: 0; }
+    .ao-address-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+    .ao-address-chip {
+      font-size: 11px; font-weight: 500; color: #6b7280; background: #f3f4f6;
+      padding: 3px 8px; border-radius: 6px;
+    }
+    .ao-distance { font-size: 12px; font-weight: 500; color: #3b82f6; margin-top: 6px; }
+    .ao-map-link {
+      display: inline-flex; align-items: center; gap: 4px; margin-top: 6px;
+      color: #3b82f6; font-size: 12px; font-weight: 600; text-decoration: none;
+    }
+    .ao-timeline { display: flex; flex-wrap: wrap; gap: 8px; }
+    .ao-timeline-chip {
+      flex: 1; min-width: 90px; background: #fff; border: 1px solid #e5e7eb;
+      border-radius: 10px; padding: 10px; text-align: center;
+    }
+    .ao-timeline-label { font-size: 11px; color: #6b7280; font-weight: 600; }
+    .ao-timeline-value { font-size: 14px; font-weight: 700; color: #111827; margin-top: 4px; }
+    .ao-item-row {
+      display: flex; justify-content: space-between; gap: 12px;
+      padding: 10px 0; border-bottom: 1px solid #f3f4f6;
+    }
+    .ao-item-row:last-child { border-bottom: none; }
+    .ao-item-name { font-size: 14px; font-weight: 600; color: #111827; margin: 0; }
+    .ao-item-meta { font-size: 12px; color: #6b7280; margin-top: 2px; }
+    .ao-item-price-col { text-align: right; }
+    .ao-item-qty { font-size: 12px; color: #6b7280; }
+    .ao-item-price { font-size: 14px; font-weight: 600; color: #111827; }
+    .ao-price-box {
+      background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 12px;
+    }
+    .ao-price-line { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px; color: #4b5563; }
+    .ao-price-divider { height: 1px; background: #e5e7eb; margin: 8px 0; }
+    .ao-price-total { display: flex; justify-content: space-between; font-size: 15px; font-weight: 700; color: #111827; }
+    .ao-price-total span:last-child { color: #059669; }
+    .ao-payment-status {
+      display: flex; align-items: center; gap: 6px; margin-top: 10px;
+      font-size: 13px; color: #6b7280;
+    }
+    .ao-order-number {
+      font-size: 11px; font-weight: 600; color: #9ca3af; margin-top: 2px;
+    }
     .clickable-row { cursor: pointer; }
     .clickable-row:hover { background: #f0fdf4; }
     .repeat-pill {
@@ -439,6 +543,7 @@
       var PERIODS = ['Today', 'This Week', 'This Month', 'This Year', 'All Time', 'Custom Month'];
       var RANGES = [1, 2, 3, 6];
       var charts = {};
+      var expandedOrderId = null;
 
       var state = {
         period: 'This Month',
@@ -508,6 +613,95 @@
         return String(s == null ? '' : s)
           .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
           .replace(/"/g, '&quot;');
+      }
+
+      function getStatusColor(status) {
+        switch (status) {
+          case 'completed': return '#10B981';
+          case 'preparing': return '#F59E0B';
+          case 'delivering': return '#3B82F6';
+          case 'pending': return '#6366F1';
+          case 'cancelled': return '#EF4444';
+          default: return '#6B7280';
+        }
+      }
+
+      function getStatusText(status) {
+        if (!status) return 'Unknown';
+        return status.charAt(0).toUpperCase() + status.slice(1);
+      }
+
+      function formatOrderDate(dateString) {
+        var date = new Date(dateString);
+        return date.toLocaleString('en-US', {
+          month: 'short',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+        });
+      }
+
+      function parseOrderItems(raw) {
+        try {
+          if (!raw) return [];
+          var itemsData = typeof raw === 'string' ? JSON.parse(raw) : raw;
+          if (!Array.isArray(itemsData)) return [];
+          return itemsData.map(function (item) {
+            return {
+              name: item.name || 'Unknown Item',
+              quantity: item.quantity || 1,
+              price: item.price || 0,
+              size: (item.options && item.options.size) || item.size || undefined,
+              selectedSide: (item.options && item.options.side) || item.selectedSide || undefined,
+              extras: Array.isArray(item.options && item.options.extras)
+                ? item.options.extras
+                : (Array.isArray(item.extras) ? item.extras : []),
+              isPackage: item.isPackage === true,
+            };
+          });
+        } catch (_) {
+          return [];
+        }
+      }
+
+      function getTimeInState(order) {
+        var created = new Date(order.$createdAt).getTime();
+        var updated = order.$updatedAt ? new Date(order.$updatedAt).getTime() : null;
+        var preparingAt = order.preparingAt ? new Date(order.preparingAt).getTime() : null;
+        var deliveringAt = order.deliveringAt ? new Date(order.deliveringAt).getTime() : null;
+        var completedAt = order.completedAt ? new Date(order.completedAt).getTime() : null;
+        var now = Date.now();
+        var status = order.orderStatus || 'pending';
+        var pending = null;
+        var preparing = null;
+        var delivering = null;
+
+        if (status === 'pending') pending = Math.round((now - created) / 60000);
+        else if (preparingAt != null) pending = Math.round((preparingAt - created) / 60000);
+
+        if (status === 'preparing') {
+          var prepStart = preparingAt != null ? preparingAt : (updated != null ? updated : created);
+          preparing = Math.round((now - prepStart) / 60000);
+        } else if (preparingAt != null) {
+          var prepEnd = deliveringAt != null ? deliveringAt : (completedAt != null ? completedAt : updated);
+          if (prepEnd != null) preparing = Math.round((prepEnd - preparingAt) / 60000);
+        }
+
+        if (status === 'delivering') {
+          var delivStart = deliveringAt != null ? deliveringAt : (updated != null ? updated : now);
+          delivering = Math.round((now - delivStart) / 60000);
+        } else if (deliveringAt != null) {
+          var delivEnd = completedAt != null ? completedAt : updated;
+          if (delivEnd != null) delivering = Math.round((delivEnd - deliveringAt) / 60000);
+        }
+
+        return { pending: pending, preparing: preparing, delivering: delivering };
+      }
+
+      function parseDistanceKm(raw) {
+        if (raw == null || raw === '') return null;
+        var n = typeof raw === 'number' ? raw : parseFloat(String(raw));
+        return isFinite(n) && n >= 0 ? n : null;
       }
 
       function customerKey(o) {
@@ -630,18 +824,38 @@
 
           state.orders = orderDocs.map(function (doc) {
             var restaurantId = (doc.restaurantId && doc.restaurantId.$id) || doc.restaurantId || 'unknown';
+            var deliveryFee = Number(doc.deliveryFee) || 0;
+            var totalAmount = Number(doc.totalAmount) || 0;
+            var foodSubtotal = doc.foodSubtotal != null
+              ? Number(doc.foodSubtotal) || 0
+              : Math.max(0, totalAmount - deliveryFee);
             return {
               $id: doc.$id,
               $createdAt: doc.$createdAt,
+              $updatedAt: doc.$updatedAt,
               orderNumber: doc.orderNumber || 'N/A',
               customerName: doc.customerName || 'Unknown',
               customerPhone: doc.customerPhone || doc.phone || 'N/A',
               deliveryAddress: doc.deliveryAddress || 'N/A',
-              totalAmount: doc.totalAmount || 0,
+              apartment: doc.apartment || '',
+              floor: doc.floor || '',
+              items: parseOrderItems(doc.items),
+              totalAmount: totalAmount,
+              deliveryFee: deliveryFee,
+              foodSubtotal: foodSubtotal,
               paymentMethod: doc.paymentMethod || 'Cash',
+              paymentStatus: doc.paymentStatus || '',
               orderStatus: doc.orderStatus || 'pending',
               restaurantId: restaurantId,
               restaurantName: restaurants[restaurantId] || 'Unknown Restaurant',
+              branchName: doc.branchName || '',
+              branchDisplayName: doc.branchName || '',
+              latitude: doc.latitude,
+              longitude: doc.longitude,
+              deliveryDistanceKm: parseDistanceKm(doc.deliveryDistanceKm),
+              preparingAt: doc.preparingAt,
+              deliveringAt: doc.deliveringAt,
+              completedAt: doc.completedAt,
             };
           });
 
@@ -1083,10 +1297,117 @@
           return;
         }
         $('popularBody').innerHTML = list.map(function (r, i) {
-          return '<div class="order-item"><div class="order-top"><span>#' + (i + 1) + ' ' + escapeHtml(r.name) +
-            '</span><span>' + money(r.revenue) + '</span></div><div class="order-meta">' +
-            r.orders + ' orders · avg ' + money(r.revenue / r.orders) + '</div></div>';
+          return '<div class="admin-order-card" style="padding:14px"><div style="display:flex;justify-content:space-between;gap:10px;align-items:center">' +
+            '<div><div style="font-weight:700;color:#111827">#' + (i + 1) + ' ' + escapeHtml(r.name) +
+            '</div><div style="font-size:12px;color:#6b7280;margin-top:4px">' +
+            r.orders + ' orders · avg ' + money(r.revenue / r.orders) + '</div></div>' +
+            '<div style="font-weight:700;color:#059669">' + money(r.revenue) + '</div></div></div>';
         }).join('');
+      }
+
+      function renderOrderCard(o) {
+        var statusColor = getStatusColor(o.orderStatus);
+        var expanded = expandedOrderId === o.$id;
+        var items = o.items || [];
+        var times = getTimeInState(o);
+        var preview = items.slice(0, 2).map(function (item) {
+          return '<div class="ao-item-line">' + escapeHtml(item.quantity + '× ' + item.name) + '</div>';
+        }).join('') + (items.length > 2
+          ? '<div class="ao-items-more">+' + (items.length - 2) + ' more</div>'
+          : '');
+
+        var itemsHtml = items.length
+          ? items.map(function (item) {
+              var meta = '';
+              if (item.size) meta += '<div class="ao-item-meta">Size: ' + escapeHtml(item.size) + '</div>';
+              if (item.selectedSide) meta += '<div class="ao-item-meta">Side: ' + escapeHtml(item.selectedSide) + '</div>';
+              if (item.extras && item.extras.length) {
+                meta += '<div class="ao-item-meta">Extras: ' + escapeHtml(item.extras.map(function (e) { return e.name; }).join(', ')) + '</div>';
+              }
+              return '<div class="ao-item-row"><div><p class="ao-item-name">' + escapeHtml(item.name) + '</p>' + meta +
+                '</div><div class="ao-item-price-col"><div class="ao-item-qty">×' + item.quantity +
+                '</div><div class="ao-item-price">' + money(item.price * item.quantity) + '</div></div></div>';
+            }).join('')
+          : '<p class="hint">No items listed</p>';
+
+        var addressChips = '';
+        if (o.apartment) addressChips += '<span class="ao-address-chip">Apt ' + escapeHtml(o.apartment) + '</span>';
+        if (o.floor) addressChips += '<span class="ao-address-chip">Floor ' + escapeHtml(o.floor) + '</span>';
+
+        var mapLink = (o.latitude && o.longitude)
+          ? '<a class="ao-map-link" href="https://www.google.com/maps/search/?api=1&query=' +
+            encodeURIComponent(o.latitude + ',' + o.longitude) + '" target="_blank" rel="noopener">View on Map</a>'
+          : '';
+
+        var distanceHtml = o.deliveryDistanceKm != null
+          ? '<div class="ao-distance">' + Number(o.deliveryDistanceKm).toFixed(1) + ' km from restaurant</div>'
+          : '';
+
+        var paymentStatusHtml = o.paymentStatus
+          ? '<div class="ao-payment-status">Payment: ' + escapeHtml(o.paymentStatus.charAt(0).toUpperCase() + o.paymentStatus.slice(1)) + '</div>'
+          : '';
+
+        var expandedHtml = expanded ? (
+          '<div class="ao-expanded">' +
+            '<div class="ao-section"><div class="ao-section-title">Delivery Address</div>' +
+              '<div class="ao-address-box"><div style="color:#10b981;font-size:18px">📍</div><div style="flex:1">' +
+                '<p class="ao-address-text">' + escapeHtml(o.deliveryAddress) + '</p>' +
+                (addressChips ? '<div class="ao-address-chips">' + addressChips + '</div>' : '') +
+                distanceHtml + mapLink +
+              '</div></div></div>' +
+            '<div class="ao-section"><div class="ao-section-title">Status Timeline</div><div class="ao-timeline">' +
+              '<div class="ao-timeline-chip"><div class="ao-timeline-label">Pending</div><div class="ao-timeline-value">' +
+                (times.pending != null ? times.pending + ' min' : '—') + '</div></div>' +
+              '<div class="ao-timeline-chip"><div class="ao-timeline-label">Preparing</div><div class="ao-timeline-value">' +
+                (times.preparing != null ? times.preparing + ' min' : '—') + '</div></div>' +
+              '<div class="ao-timeline-chip"><div class="ao-timeline-label">Delivering</div><div class="ao-timeline-value">' +
+                (times.delivering != null ? times.delivering + ' min' : '—') + '</div></div>' +
+            '</div></div>' +
+            '<div class="ao-section"><div class="ao-section-title">Items</div>' + itemsHtml + '</div>' +
+            '<div class="ao-section"><div class="ao-section-title">Price Summary</div><div class="ao-price-box">' +
+              '<div class="ao-price-line"><span>Food</span><span>' + money(o.foodSubtotal) + '</span></div>' +
+              '<div class="ao-price-line"><span>Delivery</span><span>' + money(o.deliveryFee) + '</span></div>' +
+              '<div class="ao-price-divider"></div>' +
+              '<div class="ao-price-total"><span>Total</span><span>' + money(o.totalAmount) + '</span></div>' +
+              paymentStatusHtml +
+            '</div></div>' +
+          '</div>'
+        ) : '';
+
+        return (
+          '<div class="admin-order-card" data-order-id="' + escapeHtml(o.$id) + '">' +
+            '<div class="ao-status-strip" style="background:' + statusColor + '"></div>' +
+            '<div class="ao-body">' +
+              '<div class="ao-top">' +
+                '<div class="ao-top-left">' +
+                  '<p class="ao-restaurant">' + escapeHtml(o.restaurantName) + '</p>' +
+                  (o.branchDisplayName ? '<div class="ao-branch">📍 ' + escapeHtml(o.branchDisplayName) + '</div>' : '') +
+                  '<p class="ao-customer">' + escapeHtml(o.customerName) + '</p>' +
+                  '<div class="ao-order-number">#' + escapeHtml(o.orderNumber) + '</div>' +
+                '</div>' +
+                '<div class="ao-top-right">' +
+                  '<span class="ao-status-pill" style="background:' + statusColor + '18;color:' + statusColor + '">' +
+                    '<span class="ao-status-dot" style="background:' + statusColor + '"></span>' +
+                    escapeHtml(getStatusText(o.orderStatus)) +
+                  '</span>' +
+                  '<p class="ao-total">' + money(o.totalAmount) + '</p>' +
+                '</div>' +
+              '</div>' +
+              '<div class="ao-meta">' +
+                '<span class="ao-chip">🕒 ' + escapeHtml(formatOrderDate(o.$createdAt)) + '</span>' +
+                '<span class="ao-chip">' + (isCash(o.paymentMethod) ? '💵' : '💳') + ' ' + escapeHtml(o.paymentMethod) + '</span>' +
+                (items.length ? '<span class="ao-chip">🍽 ' + items.length + (items.length === 1 ? ' item' : ' items') + '</span>' : '') +
+              '</div>' +
+              '<a class="ao-phone" href="tel:' + encodeURIComponent(String(o.customerPhone).replace(/[^\d+]/g, '')) + '">📞 ' +
+                escapeHtml(o.customerPhone) + '</a>' +
+              (items.length ? '<div class="ao-items-preview">' + preview + '</div>' : '') +
+              '<button type="button" class="ao-details-btn' + (expanded ? ' active' : '') + '" data-toggle-order="' + escapeHtml(o.$id) + '">' +
+                (expanded ? 'Hide Details ▴' : 'View Details ▾') +
+              '</button>' +
+            '</div>' +
+            expandedHtml +
+          '</div>'
+        );
       }
 
       function renderOrders(filtered) {
@@ -1095,15 +1416,10 @@
           $('ordersBody').innerHTML = '<p class="hint">No orders found for this period/filter.</p>';
           return;
         }
-        $('ordersBody').innerHTML = filtered.slice(0, 200).map(function (o) {
-          return '<div class="order-item"><div class="order-top"><span>#' + escapeHtml(o.orderNumber) +
-            ' <span class="badge">' + escapeHtml(o.orderStatus) + '</span></span><span>' + money(o.totalAmount) +
-            '</span></div><div class="order-meta">' + escapeHtml(o.restaurantName) + ' · ' +
-            escapeHtml(o.customerName) + ' · ' + escapeHtml(o.customerPhone) + '<br>' +
-            new Date(o.$createdAt).toLocaleString() + ' · ' + escapeHtml(o.paymentMethod) + '</div></div>';
-        }).join('') + (filtered.length > 200
-          ? '<p class="hint">Showing first 200 of ' + filtered.length + ' orders.</p>'
-          : '');
+        $('ordersBody').innerHTML = filtered.slice(0, 200).map(renderOrderCard).join('') +
+          (filtered.length > 200
+            ? '<p class="hint">Showing first 200 of ' + filtered.length + ' orders.</p>'
+            : '');
       }
 
       function renderAll() {
@@ -1185,6 +1501,15 @@
       $('statusFilter').onchange = function () { state.status = this.value; renderAll(); };
       $('paymentFilter').onchange = function () { state.payment = this.value; renderAll(); };
       $('searchInput').oninput = function () { state.search = this.value.trim(); renderAll(); };
+
+      $('ordersBody').addEventListener('click', function (e) {
+        var btn = e.target.closest('[data-toggle-order]');
+        if (!btn) return;
+        e.preventDefault();
+        var id = btn.getAttribute('data-toggle-order');
+        expandedOrderId = expandedOrderId === id ? null : id;
+        renderOrders(applyFilters(state.orders));
+      });
 
       account.get()
         .then(function () { return ensureAdmin(); })
