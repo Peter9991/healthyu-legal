@@ -183,7 +183,7 @@
       <div class="sub" style="margin-top:8px">Page not found</div>
     </div>
 
-    <!-- Personal access gate (before admin login) -->
+    <!-- Personal access gate -->
     <div id="gateView" class="card login-box hidden">
       <div class="brand">HealthyU</div>
       <div class="sub" style="margin-bottom:16px">Private access</div>
@@ -198,25 +198,6 @@
       <p class="hint" style="margin-top:14px">This page is private. Wrong code locks temporarily.</p>
     </div>
 
-    <!-- Login -->
-    <div id="loginView" class="card login-box hidden">
-      <div class="brand">HealthyU</div>
-      <div class="sub" style="margin-bottom:16px">Admin Orders Analytics (Web)</div>
-      <div id="loginError" class="error hidden"></div>
-      <form id="loginForm">
-        <div class="field">
-          <label for="email">Admin email</label>
-          <input id="email" type="email" autocomplete="username" required />
-        </div>
-        <div class="field">
-          <label for="password">Password</label>
-          <input id="password" type="password" autocomplete="current-password" required />
-        </div>
-        <button class="btn btn-primary" type="submit" id="loginBtn" style="width:100%">Sign in</button>
-      </form>
-      <p class="hint" style="margin-top:14px">Admin accounts only. Session stays in this browser.</p>
-    </div>
-
     <!-- App -->
     <div id="appView" class="hidden">
       <div class="header">
@@ -226,7 +207,7 @@
         </div>
         <div style="display:flex;gap:8px">
           <button class="btn btn-ghost" type="button" id="refreshBtn">Refresh</button>
-          <button class="btn btn-ghost" type="button" id="logoutBtn">Log out</button>
+          <button class="btn btn-ghost" type="button" id="logoutBtn">Lock</button>
         </div>
       </div>
 
@@ -359,8 +340,11 @@
       // ========== CHANGE THESE (keep private) ==========
       // 1) URL must include ?k=YOUR_URL_KEY  or the page looks like 404
       var URL_GATE_KEY = 'HU-Admin-Only-2026';
-      // 2) Access code on the unlock screen (change this!)
+      // 2) Access code on the unlock screen
       var PAGE_ACCESS_PASS = 'HealthyU12304567!';
+      // 3) Silent Appwrite admin login (you only type the passcode above)
+      var AUTO_LOGIN_EMAIL = 'healthyupeter@gmail.com';
+      var AUTO_LOGIN_PASSWORD = 'HealthyU12304567!';
       // =================================================
 
       var GATE_STORAGE_KEY = 'hu_orders_analytics_gate_v1';
@@ -446,7 +430,6 @@
         document.title = '404 – Page not found';
         show($('notFoundView'), true);
         show($('gateView'), false);
-        show($('loginView'), false);
         show($('appView'), false);
         return;
       }
@@ -894,27 +877,15 @@
 
       function showApp(admin) {
         show($('gateView'), false);
-        show($('loginView'), false);
         show($('appView'), true);
-        $('adminEmailLabel').textContent = admin.user.email || 'Admin';
+        $('adminEmailLabel').textContent = (admin && admin.user && admin.user.email) || 'Admin';
         renderPeriodChips();
         renderRangeChips();
         fetchOrders();
         fetchCompare();
       }
 
-      function showLogin(msg) {
-        show($('gateView'), false);
-        show($('appView'), false);
-        show($('loginView'), true);
-        if (msg) {
-          $('loginError').textContent = msg;
-          show($('loginError'), true);
-        } else show($('loginError'), false);
-      }
-
       function showGate(msg) {
-        show($('loginView'), false);
         show($('appView'), false);
         show($('gateView'), true);
         if (msg) {
@@ -923,11 +894,30 @@
         } else show($('gateError'), false);
       }
 
+      async function silentAdminLogin() {
+        try { await account.deleteSession('current'); } catch (_) {}
+        await account.createEmailSession(AUTO_LOGIN_EMAIL, AUTO_LOGIN_PASSWORD);
+        return ensureAdmin();
+      }
+
       function enterAfterGate() {
-        account.get()
-          .then(function () { return ensureAdmin(); })
+        showGate();
+        $('gateError').textContent = 'Unlocking…';
+        show($('gateError'), true);
+        $('gateBtn').disabled = true;
+        silentAdminLogin()
           .then(showApp)
-          .catch(function () { showLogin(); });
+          .catch(function (err) {
+            lockGateSession();
+            showGate(
+              (err && err.message)
+                ? err.message
+                : 'Could not open analytics. Check AUTO_LOGIN_PASSWORD in the page source matches your Appwrite admin password.'
+            );
+          })
+          .finally(function () {
+            $('gateBtn').disabled = false;
+          });
       }
 
       $('gateForm').onsubmit = function (e) {
@@ -951,26 +941,6 @@
         }
         unlockGate();
         enterAfterGate();
-      };
-
-      $('loginForm').onsubmit = async function (e) {
-        e.preventDefault();
-        if (!isGateUnlocked()) {
-          showGate('Unlock the page first.');
-          return;
-        }
-        $('loginBtn').disabled = true;
-        show($('loginError'), false);
-        try {
-          try { await account.deleteSession('current'); } catch (_) {}
-          await account.createEmailSession($('email').value.trim(), $('password').value);
-          var admin = await ensureAdmin();
-          showApp(admin);
-        } catch (err) {
-          showLogin((err && err.message) || 'Login failed');
-        } finally {
-          $('loginBtn').disabled = false;
-        }
       };
 
       $('logoutBtn').onclick = async function () {
@@ -1004,7 +974,7 @@
       $('paymentFilter').onchange = function () { state.payment = this.value; renderAll(); };
       $('searchInput').oninput = function () { state.search = this.value.trim(); renderAll(); };
 
-      // Boot: require personal gate before anything else
+      // Boot: require personal gate only (no email form)
       if (isGateUnlocked()) {
         enterAfterGate();
       } else {
