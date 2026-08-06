@@ -197,9 +197,22 @@
     .ao-top { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
     .ao-top-left { flex: 1; min-width: 0; }
     .ao-top-right { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
-    .ao-restaurant { font-size: 13px; font-weight: 500; color: #6b7280; margin: 0; }
-    .ao-branch { display: flex; align-items: center; gap: 4px; margin-top: 2px; font-size: 13px; font-weight: 600; color: #2563eb; }
-    .ao-customer { font-size: 18px; font-weight: 700; color: #111827; margin: 2px 0 0; }
+    .ao-restaurant {
+      display: flex; align-items: center; gap: 5px;
+      font-size: 13px; font-weight: 500; color: #6b7280; margin: 0;
+    }
+    .ao-branch {
+      display: inline-flex; align-items: center; gap: 5px; flex-wrap: wrap;
+      margin-top: 6px; max-width: 100%;
+      background: #dbeafe; border: 1px solid #93c5fd; border-radius: 10px;
+      padding: 6px 10px; font-size: 13px; font-weight: 600; color: #1d4ed8;
+    }
+    .ao-branch-label {
+      font-size: 11px; font-weight: 800; color: #2563eb;
+      letter-spacing: 0.2px; text-transform: uppercase;
+    }
+    .ao-branch-sep { font-weight: 700; color: #2563eb; }
+    .ao-customer { font-size: 18px; font-weight: 700; color: #111827; margin: 6px 0 0; }
     .ao-status-pill {
       display: inline-flex; align-items: center; gap: 5px;
       padding: 4px 8px; border-radius: 20px; font-size: 11px; font-weight: 600;
@@ -364,7 +377,7 @@
             <option value="Cash">Cash</option>
             <option value="Card">Card</option>
           </select>
-          <input id="searchInput" type="search" placeholder="Search order / customer / phone…" style="flex:1;min-width:180px;padding:10px 12px;border:1px solid #e5e7eb;border-radius:10px" />
+          <input id="searchInput" type="search" placeholder="Search order / customer / phone / restaurant / branch…" style="flex:1;min-width:180px;padding:10px 12px;border:1px solid #e5e7eb;border-radius:10px" />
         </div>
       </div>
 
@@ -533,6 +546,7 @@
       var USERS = '67e726ce0007a8373969';
       var ORDERS = '67e72af6003c9f86ebd7';
       var RESTAURANTS = '67e727b1001a1c7c0ba8';
+      var BRANCHES = '67f4346800256f356831';
 
       var Appwrite = window.Appwrite;
       var client = new Appwrite.Client().setEndpoint(ENDPOINT).setProject(PROJECT);
@@ -657,6 +671,7 @@
                 ? item.options.extras
                 : (Array.isArray(item.extras) ? item.extras : []),
               isPackage: item.isPackage === true,
+              branchId: item.branchId || undefined,
             };
           });
         } catch (_) {
@@ -702,6 +717,124 @@
         if (raw == null || raw === '') return null;
         var n = typeof raw === 'number' ? raw : parseFloat(String(raw));
         return isFinite(n) && n >= 0 ? n : null;
+      }
+
+      function extractAddressAreaLabel(address) {
+        if (!address || !String(address).trim()) return '';
+        var parts = String(address).split(',').map(function (p) { return p.trim(); }).filter(Boolean);
+        if (parts.length > 1) return parts[1];
+        return parts[0] || '';
+      }
+
+      function parseOrderBranchId(raw) {
+        if (raw == null) return null;
+        if (typeof raw === 'object' && raw.$id) return String(raw.$id).trim() || null;
+        var s = String(raw).trim();
+        return s || null;
+      }
+
+      function resolveOrderBranchIdFromItems(items) {
+        if (!Array.isArray(items)) return null;
+        for (var i = 0; i < items.length; i++) {
+          var id = parseOrderBranchId(items[i] && items[i].branchId);
+          if (id) return id;
+        }
+        return null;
+      }
+
+      function isMainBranchStoredName(name) {
+        return (
+          name === 'Main Branch' ||
+          name.indexOf('Main Branch (') === 0 ||
+          name.indexOf('Main Branch ·') === 0 ||
+          name === 'الفرع الرئيسي' ||
+          name.indexOf('الفرع الرئيسي (') === 0 ||
+          name.indexOf('الفرع الرئيسي ·') === 0
+        );
+      }
+
+      function formatMainBranchDisplayLabel(location) {
+        if (location && String(location).trim()) {
+          return 'Main Branch · ' + String(location).trim();
+        }
+        return 'Main Branch';
+      }
+
+      function formatBranchDisplayLabel(name, location) {
+        var label = String(name || '').trim();
+        var loc = location ? String(location).trim() : '';
+        if (!label) return loc || 'Branch';
+        if (!loc) return label;
+        return label + ' · ' + loc;
+      }
+
+      function resolveOrderBranchDisplayName(order, branchMetaById, mainBranchLocationByRestaurantId) {
+        var branchId = (order.branchId && String(order.branchId).trim()) || null;
+        var restaurantId = (order.restaurantId && String(order.restaurantId).trim()) || null;
+        var storedName = (order.branchName && String(order.branchName).trim()) || '';
+        var isMainBranch = !branchId || (restaurantId && branchId === restaurantId);
+        var mainLocation = (restaurantId && mainBranchLocationByRestaurantId[restaurantId]) || '';
+
+        if (storedName) {
+          if (isMainBranchStoredName(storedName)) {
+            var parsedMain = '';
+            var mainDot = storedName.match(/^Main Branch · (.+)$/);
+            var mainParen = storedName.match(/^Main Branch\s*\((.+)\)$/);
+            var arDot = storedName.match(/^الفرع الرئيسي · (.+)$/);
+            var arParen = storedName.match(/^الفرع الرئيسي\s*\((.+)\)$/);
+            parsedMain = (mainDot && mainDot[1]) || (mainParen && mainParen[1]) ||
+              (arDot && arDot[1]) || (arParen && arParen[1]) || '';
+            return formatMainBranchDisplayLabel(parsedMain || mainLocation);
+          }
+          var dotIdx = storedName.indexOf(' · ');
+          if (dotIdx > 0) {
+            return formatBranchDisplayLabel(
+              storedName.slice(0, dotIdx).trim(),
+              storedName.slice(dotIdx + 3).trim()
+            );
+          }
+          if (branchId && branchMetaById[branchId]) {
+            var meta = branchMetaById[branchId];
+            return formatBranchDisplayLabel(storedName || meta.name, meta.location);
+          }
+          return storedName;
+        }
+
+        if (isMainBranch) return formatMainBranchDisplayLabel(mainLocation);
+        if (branchId && branchMetaById[branchId]) {
+          var m = branchMetaById[branchId];
+          return formatBranchDisplayLabel(m.name, m.location);
+        }
+        return 'Branch';
+      }
+
+      async function listDocumentsByIds(collectionId, ids, selectFields) {
+        var unique = [];
+        var seen = {};
+        (ids || []).forEach(function (id) {
+          if (!id || seen[id]) return;
+          seen[id] = true;
+          unique.push(id);
+        });
+        var map = {};
+        if (!unique.length) return map;
+        var batchSize = 100;
+        for (var i = 0; i < unique.length; i += batchSize) {
+          var chunk = unique.slice(i, i + batchSize);
+          var queries = [Query.equal('$id', chunk), Query.limit(chunk.length)];
+          if (selectFields && selectFields.length) {
+            queries.push(Query.select(selectFields));
+          }
+          try {
+            var res = await databases.listDocuments(DATABASE, collectionId, queries);
+            (res.documents || []).forEach(function (doc) {
+              map[doc.$id] = doc;
+            });
+          } catch (_) {
+            // Non-critical enrichment
+          }
+        }
+        return map;
       }
 
       function customerKey(o) {
@@ -765,7 +898,8 @@
           if (state.search) {
             var q = state.search.toLowerCase();
             var hay = [
-              o.orderNumber, o.customerName, o.customerPhone, o.restaurantName, o.deliveryAddress
+              o.orderNumber, o.customerName, o.customerPhone, o.restaurantName,
+              o.branchDisplayName, o.branchName, o.deliveryAddress
             ].join(' ').toLowerCase();
             if (hay.indexOf(q) === -1) return false;
           }
@@ -815,20 +949,31 @@
 
           var [orderDocs, restaurantDocs] = await Promise.all([
             listAllDocuments(ORDERS, queries),
-            listAllDocuments(RESTAURANTS, [Query.select(['$id', 'name'])]),
+            listAllDocuments(RESTAURANTS, [Query.select(['$id', 'name', 'address'])]),
           ]);
 
           var restaurants = {};
-          restaurantDocs.forEach(function (r) { restaurants[r.$id] = r.name; });
+          var mainBranchLocationByRestaurantId = {};
+          restaurantDocs.forEach(function (r) {
+            restaurants[r.$id] = r.name;
+            var area = extractAddressAreaLabel(r.address);
+            if (area) mainBranchLocationByRestaurantId[r.$id] = area;
+          });
           state.restaurants = restaurants;
 
-          state.orders = orderDocs.map(function (doc) {
+          var branchIdsToLookup = [];
+          var mappedOrders = orderDocs.map(function (doc) {
             var restaurantId = (doc.restaurantId && doc.restaurantId.$id) || doc.restaurantId || 'unknown';
             var deliveryFee = Number(doc.deliveryFee) || 0;
             var totalAmount = Number(doc.totalAmount) || 0;
             var foodSubtotal = doc.foodSubtotal != null
               ? Number(doc.foodSubtotal) || 0
               : Math.max(0, totalAmount - deliveryFee);
+            var items = parseOrderItems(doc.items);
+            var branchId = parseOrderBranchId(doc.branchId) || resolveOrderBranchIdFromItems(items);
+            if (branchId && restaurantId && branchId !== restaurantId) {
+              branchIdsToLookup.push(branchId);
+            }
             return {
               $id: doc.$id,
               $createdAt: doc.$createdAt,
@@ -839,7 +984,7 @@
               deliveryAddress: doc.deliveryAddress || 'N/A',
               apartment: doc.apartment || '',
               floor: doc.floor || '',
-              items: parseOrderItems(doc.items),
+              items: items,
               totalAmount: totalAmount,
               deliveryFee: deliveryFee,
               foodSubtotal: foodSubtotal,
@@ -848,8 +993,8 @@
               orderStatus: doc.orderStatus || 'pending',
               restaurantId: restaurantId,
               restaurantName: restaurants[restaurantId] || 'Unknown Restaurant',
+              branchId: branchId,
               branchName: doc.branchName || '',
-              branchDisplayName: doc.branchName || '',
               latitude: doc.latitude,
               longitude: doc.longitude,
               deliveryDistanceKm: parseDistanceKm(doc.deliveryDistanceKm),
@@ -857,6 +1002,32 @@
               deliveringAt: doc.deliveringAt,
               completedAt: doc.completedAt,
             };
+          });
+
+          var branchDocsById = await listDocumentsByIds(
+            BRANCHES,
+            branchIdsToLookup,
+            ['$id', 'branchName', 'address']
+          );
+          var branchMetaById = {};
+          Object.keys(branchDocsById).forEach(function (id) {
+            var b = branchDocsById[id];
+            var name = String(b.branchName || '').trim();
+            if (!name) return;
+            branchMetaById[id] = {
+              name: name,
+              location: extractAddressAreaLabel(b.address),
+            };
+          });
+
+          state.orders = mappedOrders.map(function (order) {
+            return Object.assign({}, order, {
+              branchDisplayName: resolveOrderBranchDisplayName(
+                order,
+                branchMetaById,
+                mainBranchLocationByRestaurantId
+              ),
+            });
           });
 
           show($('loadingBanner'), false);
@@ -1380,8 +1551,12 @@
             '<div class="ao-body">' +
               '<div class="ao-top">' +
                 '<div class="ao-top-left">' +
-                  '<p class="ao-restaurant">' + escapeHtml(o.restaurantName) + '</p>' +
-                  (o.branchDisplayName ? '<div class="ao-branch">📍 ' + escapeHtml(o.branchDisplayName) + '</div>' : '') +
+                  '<p class="ao-restaurant">🍽 ' + escapeHtml(o.restaurantName) + '</p>' +
+                  (o.branchDisplayName
+                    ? '<div class="ao-branch"><span class="ao-branch-label">Branch</span>' +
+                      '<span class="ao-branch-sep">·</span>' +
+                      '<span>' + escapeHtml(o.branchDisplayName) + '</span></div>'
+                    : '') +
                   '<p class="ao-customer">' + escapeHtml(o.customerName) + '</p>' +
                   '<div class="ao-order-number">#' + escapeHtml(o.orderNumber) + '</div>' +
                 '</div>' +
