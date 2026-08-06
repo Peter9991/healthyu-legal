@@ -726,6 +726,17 @@
         return parts[0] || '';
       }
 
+      function abbreviateLocationLabel(location, maxLen) {
+        maxLen = maxLen == null ? 28 : maxLen;
+        var raw = location ? String(location).trim() : '';
+        if (!raw) return '';
+        var area = extractAddressAreaLabel(raw) || raw;
+        var cleaned = area.replace(/\s+/g, ' ').replace(/^(branch|فرع)\s+/i, '').trim();
+        if (!cleaned) return '';
+        if (cleaned.length <= maxLen) return cleaned;
+        return cleaned.slice(0, Math.max(1, maxLen - 1)).replace(/\s+$/, '') + '…';
+      }
+
       function parseOrderBranchId(raw) {
         if (raw == null) return null;
         if (typeof raw === 'object' && raw.$id) return String(raw.$id).trim() || null;
@@ -754,58 +765,85 @@
       }
 
       function formatMainBranchDisplayLabel(location) {
-        if (location && String(location).trim()) {
-          return 'Main Branch · ' + String(location).trim();
-        }
+        var loc = abbreviateLocationLabel(location);
+        if (loc) return 'Main Branch · ' + loc;
         return 'Main Branch';
       }
 
       function formatBranchDisplayLabel(name, location) {
-        var label = String(name || '').trim();
-        var loc = location ? String(location).trim() : '';
-        if (!label) return loc || 'Branch';
-        if (!loc) return label;
-        return label + ' · ' + loc;
+        var loc = abbreviateLocationLabel(location) || abbreviateLocationLabel(name);
+        if (loc) return 'Branch · ' + loc;
+        return 'Branch';
       }
 
       function resolveOrderBranchDisplayName(order, branchMetaById, mainBranchLocationByRestaurantId) {
         var branchId = (order.branchId && String(order.branchId).trim()) || null;
         var restaurantId = (order.restaurantId && String(order.restaurantId).trim()) || null;
         var storedName = (order.branchName && String(order.branchName).trim()) || '';
-        var isMainBranch = !branchId || (restaurantId && branchId === restaurantId);
+        var storedIsMain = !!(storedName && isMainBranchStoredName(storedName));
+        var idSaysMain = !branchId || (restaurantId && branchId === restaurantId);
         var mainLocation = (restaurantId && mainBranchLocationByRestaurantId[restaurantId]) || '';
+        var sideMeta = (branchId && !idSaysMain && branchMetaById[branchId]) || null;
 
-        if (storedName) {
-          if (isMainBranchStoredName(storedName)) {
-            var parsedMain = '';
-            var mainDot = storedName.match(/^Main Branch · (.+)$/);
-            var mainParen = storedName.match(/^Main Branch\s*\((.+)\)$/);
-            var arDot = storedName.match(/^الفرع الرئيسي · (.+)$/);
-            var arParen = storedName.match(/^الفرع الرئيسي\s*\((.+)\)$/);
-            parsedMain = (mainDot && mainDot[1]) || (mainParen && mainParen[1]) ||
-              (arDot && arDot[1]) || (arParen && arParen[1]) || '';
-            return formatMainBranchDisplayLabel(parsedMain || mainLocation);
+        function findSideByName(name) {
+          if (!name || !branchMetaById) return null;
+          var needle = name;
+          var dotIdx = name.indexOf(' · ');
+          if (dotIdx > 0) needle = name.slice(0, dotIdx).trim();
+          needle = String(needle).toLowerCase();
+          if (!needle || isMainBranchStoredName(needle)) return null;
+          var ids = Object.keys(branchMetaById);
+          for (var i = 0; i < ids.length; i++) {
+            var id = ids[i];
+            if (restaurantId && id === restaurantId) continue;
+            var meta = branchMetaById[id];
+            if (!meta || isMainBranchStoredName(meta.name)) continue;
+            if (String(meta.name || '').trim().toLowerCase() === needle) return meta;
           }
-          var dotIdx = storedName.indexOf(' · ');
-          if (dotIdx > 0) {
+          return null;
+        }
+
+        // Explicit side branch id
+        if (branchId && !idSaysMain) {
+          var parsedName = storedName;
+          var parsedLoc = '';
+          var d = storedName.indexOf(' · ');
+          if (d > 0) {
+            parsedName = storedName.slice(0, d).trim();
+            parsedLoc = storedName.slice(d + 3).trim();
+          }
+          return formatBranchDisplayLabel(
+            (sideMeta && sideMeta.name) || parsedName || '',
+            (sideMeta && sideMeta.location) || parsedLoc || ''
+          );
+        }
+
+        // Legacy: no branchId, stored name matches a known side branch
+        if (!branchId && storedName && !storedIsMain) {
+          var matched = findSideByName(storedName);
+          if (matched) {
+            var pName = storedName;
+            var pLoc = '';
+            var d2 = storedName.indexOf(' · ');
+            if (d2 > 0) {
+              pName = storedName.slice(0, d2).trim();
+              pLoc = storedName.slice(d2 + 3).trim();
+            }
             return formatBranchDisplayLabel(
-              storedName.slice(0, dotIdx).trim(),
-              storedName.slice(dotIdx + 3).trim()
+              matched.name || pName,
+              matched.location || pLoc || ''
             );
           }
-          if (branchId && branchMetaById[branchId]) {
-            var meta = branchMetaById[branchId];
-            return formatBranchDisplayLabel(storedName || meta.name, meta.location);
-          }
-          return storedName;
         }
 
-        if (isMainBranch) return formatMainBranchDisplayLabel(mainLocation);
-        if (branchId && branchMetaById[branchId]) {
-          var m = branchMetaById[branchId];
-          return formatBranchDisplayLabel(m.name, m.location);
+        // Main branch — do not treat closestBranchName location strings as side branches
+        var parsedMain = '';
+        if (storedIsMain) {
+          var mainDot = storedName.match(/^(?:Main Branch|الفرع الرئيسي) · (.+)$/);
+          var mainParen = storedName.match(/^(?:Main Branch|الفرع الرئيسي)\s*\((.+)\)$/);
+          parsedMain = (mainDot && mainDot[1]) || (mainParen && mainParen[1]) || '';
         }
-        return 'Branch';
+        return formatMainBranchDisplayLabel(parsedMain || mainLocation);
       }
 
       async function listDocumentsByIds(collectionId, ids, selectFields) {
@@ -1553,9 +1591,7 @@
                 '<div class="ao-top-left">' +
                   '<p class="ao-restaurant">🍽 ' + escapeHtml(o.restaurantName) + '</p>' +
                   (o.branchDisplayName
-                    ? '<div class="ao-branch"><span class="ao-branch-label">Branch</span>' +
-                      '<span class="ao-branch-sep">·</span>' +
-                      '<span>' + escapeHtml(o.branchDisplayName) + '</span></div>'
+                    ? '<div class="ao-branch">🏪 ' + escapeHtml(o.branchDisplayName) + '</div>'
                     : '') +
                   '<p class="ao-customer">' + escapeHtml(o.customerName) + '</p>' +
                   '<div class="ao-order-number">#' + escapeHtml(o.orderNumber) + '</div>' +
